@@ -1,0 +1,10 @@
+
+--Create the pkcs12 file and import in the certificate and private key
+openssl pkcs12 -export -in liquido_test.crt -inkey liquido_test.key -out keystore.p12 -name liquidoTest -passout pass:liquido123
+
+
+--Convert pkcs12 files to jks files
+keytool -importkeystore -srckeystore keystore.p12 -srcstoretype PKCS12 -destkeystore keystore.jks -deststoretype JKS -srcstorepass liquido123 -deststorepass liquido123 -srcalias liquidoTest -destalias liauidoTest
+
+--Import the redeban cer certificate into the jks file
+keytool -importcert -file www.txstestrbm.com_12092024-4.cer -keystore keystore.jks -alias server -storepass liquido123 -noprompt
