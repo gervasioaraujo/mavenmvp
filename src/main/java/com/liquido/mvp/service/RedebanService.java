@@ -1,19 +1,38 @@
 package com.liquido.mvp.service;
 
+import java.io.*;
+
+import com.liquido.mvp.utils.Wss4jUtils;
 import com.liquido.mvp.utils.crypto.AESCryptography;
 import com.liquido.mvp.utils.RedebanUtils;
 import com.liquido.mvp.utils.crypto.RSACryptography;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import java.nio.charset.StandardCharsets;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 // import javax.crypto.spec.IvParameterSpec;
 import javax.net.ssl.*;
+
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
-import java.io.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import java.net.HttpURLConnection;
 // import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,23 +45,24 @@ import java.util.Base64;
 
 public class RedebanService {
 
+    /**
+     * Path to the clients keystore
+     */
+    private final String CLIENT_KEYSTORE_PATH = "keystore.jks";
+    /**
+     * Password for the clients keystore
+     */
+    private final String CLIENT_KEYSTORE_PASSWORD = "liquido123";
+    /**
+     * The servers certificate's alias within the clients keystore.
+     */
+    private final String SERVER_CERTIFICATE_ALIAS = "liauidoTest";
+
     /*
      * https://gist.github.com/benleov/292fb7ee692e830f5dd1
      * */
     private SSLContext configureCertificate() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
     // private void configureCertificate() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
-        /**
-         * Path to the clients keystore
-         */
-        final var CLIENT_KEYSTORE_PATH = "keystore.jks";
-        /**
-         * Password for the clients keystore
-         */
-        final var CLIENT_KEYSTORE_PASSWORD = "liquido123";
-        /**
-         * The servers certificate's alias within the clients keystore.
-         */
-        final var SERVER_CERTIFICATE_ALIAS = "liauidoTest";
 
         /*
          * Load the keystore
@@ -495,6 +515,7 @@ public class RedebanService {
 
         // IvParameterSpec: Um IV (vetor de inicialização) é necessário para o modo CBC do AES.
         // TODO: Não é necessário enviar ele tbm ????????????????????
+
         final var iv = AESCryptography.generateIv();
         System.out.println("############ iv: ############");
         System.out.println(Base64.getEncoder().encodeToString(iv.getIV()));
@@ -517,9 +538,11 @@ public class RedebanService {
         System.out.println("########################");
 
 
-        // TODO: generate the KeyIdentifier *************************
-        // final var ski = RSACryptography.generateSubjectKeyIdentifier(redebanPublicKey);
-        final var ski = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
+
+        // TODO: generate the KeyIdentifier ************************* redebanPublicKey ?????????????????????????????????
+        //
+        final var ski = RSACryptography.generateSKIFromPublicKeyWithSHA1(redebanPublicKey);
+        // final var ski = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
         System.out.println("############ ski: ############");
         System.out.println(ski);
         System.out.println("########################");
@@ -666,5 +689,181 @@ public class RedebanService {
         System.out.println("777777777777777777777777");
 
         return outputString;
+    }
+
+    public String executeSOAPAndHttpsRequestV3() throws Exception {
+
+        // Load the Crypto properties
+        // Configure the certificate ???????
+        final var crypto = Wss4jUtils.loadCrypto(
+                CLIENT_KEYSTORE_PASSWORD,
+                SERVER_CERTIFICATE_ALIAS,
+                CLIENT_KEYSTORE_PATH);
+
+
+        // TODO: ?????????????????????
+        // String bodyCleanStr = RedebanUtils.getXmlBodyClean();
+        // final var basicCleanSOAPEnvelop = RedebanUtils.getBasicSOAPEnvelop();
+        // final var basicCleanSOAPEnvelop = RedebanUtils.getBasicSOAPEnvelopChinaTeam();
+
+        // final var bodyContent = extractBodyContent(basicCleanSOAPEnvelop);
+        // final var bodyContent = RedebanUtils.getBasicCleanSOAPEnvelop();
+        final var bodyContent = RedebanUtils.getCleanBodyContent();
+
+        System.out.println("############# bodyContent: ###############");
+        System.out.println(bodyContent);
+        System.out.println("############################");
+
+        /*if (bodyContent == null) {
+            System.out.println("bodyContent is null!");
+        }*/
+
+        final var soapXmlDocument = buildSoapXmlDocument(bodyContent);
+        final var soapXmlDocumentStr = nodeToString(soapXmlDocument);
+        System.out.println("############# soapXmlDocumentStr: ###############");
+        System.out.println(soapXmlDocumentStr);
+        System.out.println("############################");
+
+        // final var secHeaderStr = "<wsse:Security soap-env:mustUnderstand=\"1\"></wsse:Security>";
+
+        // **********************************
+        final var newDoc = Wss4jUtils.initWss4jConfiguration(
+                // secHeaderStr,
+                soapXmlDocument,
+                RedebanUtils.USERNAME,
+                RedebanUtils.PASSWORD
+        ); // return what?
+
+        System.out.println("############# newDoc: ###############");
+        System.out.println(nodeToString(newDoc));
+        System.out.println("############################");
+
+        // 1)
+        // 1.1) - generate Ephemeral Key;
+        // Wss4jUtils.generateEphemeralKey();
+        final var ephemeralKey = Wss4jUtils.generateAes256Key();
+
+        return bodyContent;
+    }
+
+    private String extractBodyContent(
+            final String basicSOAPEnvelop
+    ) throws ParserConfigurationException, IOException, SAXException {
+
+        System.out.println("############## extractBodyContent method ################");
+
+        System.out.println("############## basicSOAPEnvelop: ################");
+        System.out.println(basicSOAPEnvelop);
+        System.out.println("##############################");
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        Document document = factory.newDocumentBuilder().parse(
+                new ByteArrayInputStream(basicSOAPEnvelop.getBytes(StandardCharsets.UTF_8)));
+
+        System.out.println("############## document: ################");
+        System.out.println(nodeToString(document));
+        System.out.println("##############################");
+
+        // Get body element
+        String bodyContent = null;
+        // NodeList bodyList = document.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body"); // *************************
+        // NodeList bodyList = document.getElementsByTagName("Body");
+        // NodeList bodyList = document.getChildNodes();
+
+        NodeList bodyList = document.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
+        System.out.println("############## bodyList.getLength(): ################");
+        System.out.println(bodyList.getLength());
+        System.out.println("##############################");
+
+        Node bodyNode = bodyList.item(0);
+        System.out.println("############## bodyNode: ################");
+        System.out.println(nodeToString(bodyNode));
+        System.out.println("##############################");
+
+        /*NodeList bodyChildList = document.getElementsByTagNameNS("http://www.rbm.com.co/esb/comercio/compra/", "ns0:compraProcesarSolicitud");
+        System.out.println("############## bodyChildList.getLength(): ################");
+        System.out.println(bodyChildList.getLength());
+        System.out.println("##############################");*/
+
+
+        /*System.out.println("############## bodyList.item(0): ################");
+        System.out.println(nodeToString(bodyElement));
+        System.out.println("##############################");*/
+
+        if (bodyList.getLength() > 0) {
+            System.out.println("1111111111111111111111111");
+            // Element bodyElement = (Element) bodyList.item(0);
+
+            // we can use bodyNode.appendChild();
+
+            NodeList bodyNodeList =bodyNode.getChildNodes();
+
+            System.out.println("############## bodyNodeList.getLength(): ################");
+            System.out.println(bodyNodeList.getLength());
+            System.out.println("##############################");
+
+            // Get body content
+            bodyContent = nodeToString(bodyNode.getFirstChild());
+            // bodyContent = nodeToString(bodyElement.getFirstChild());
+            System.out.println("Extracted Body Content:" + bodyContent);
+        } else {
+            System.out.println("***** ERROR - No Body element found.");
+        }
+
+        return bodyContent;
+    }
+
+    private String nodeToString(final Node node) {
+        try {
+            final StringWriter writer = new StringWriter();
+            final Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.INDENT, "no");
+            transformer.transform(new DOMSource(node), new StreamResult(writer));
+            return writer.toString();
+        } catch (Exception e) {
+            System.out.println(" Redeban convert node to String error: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Document buildSoapXmlDocument(final String bodyContent) throws Exception {
+        // New soap xml
+        MessageFactory messageFactory = MessageFactory.newInstance();
+        SOAPMessage soapMessage = messageFactory.createMessage();
+
+        // Soap create
+        SOAPEnvelope envelope = soapMessage.getSOAPPart().getEnvelope();
+        envelope.removeNamespaceDeclaration(envelope.getPrefix());
+        envelope.setPrefix("soap-env");
+        envelope.addNamespaceDeclaration("soap-env", "http://schemas.xmlsoap.org/soap/envelope/");
+
+        SOAPBody soapBody = envelope.getBody();
+        soapBody.setPrefix("soap-env");
+        SOAPHeader soapHeader = envelope.getHeader();
+        soapHeader.setPrefix("soap-env");
+        soapBody.addDocument(convertStringToDocument(bodyContent));
+
+        soapMessage.saveChanges();
+        return soapMessageToDocument(soapMessage);
+        /*Document doc = soapMessageToDocument(soapMessage);
+        return doc;*/
+    }
+
+    private Document convertStringToDocument(final String xmlStr) {
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        try {
+            final DocumentBuilder builder = factory.newDocumentBuilder();
+            return builder.parse(new InputSource(new StringReader(xmlStr)));
+        } catch (Exception e) {
+            System.out.println(" Redeban convert String to Document error: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Document soapMessageToDocument(SOAPMessage soapMessage) throws Exception {
+        return soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
     }
 }

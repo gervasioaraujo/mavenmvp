@@ -81,4 +81,13 @@ public class MvpController {
             throw new RuntimeException(e);
         }
     }
+
+    @GetMapping("/mvp/v3/redeban")
+    public String redebanV3() {
+        try {
+            return redebanService.executeSOAPAndHttpsRequestV3();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

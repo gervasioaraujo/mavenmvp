@@ -14,6 +14,7 @@ import org.bouncycastle.util.io.pem.PemReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
+import java.security.MessageDigest;
 
 public class RSACryptography {
 
@@ -46,6 +47,19 @@ public class RSACryptography {
         byte[] cipherText = cipher.doFinal(aesKey.getEncoded());
         // return cipher.doFinal(aesKey.getEncoded());
         return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+    public static String generateSKIFromPublicKeyWithSHA1(PublicKey publicKey) throws NoSuchAlgorithmException {
+        // Gerar o SKI usando SHA-1
+        MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+
+        // Extrair os bytes da chave pública
+        byte[] encodedPublicKey = publicKey.getEncoded();
+
+        byte[] skiBytes = sha1.digest(encodedPublicKey);
+
+        // Converter o SKI para Base64 para exibir
+        return Base64.getEncoder().encodeToString(skiBytes);
     }
 
     // Método para gerar o Subject Key Identifier a partir da chave pública
