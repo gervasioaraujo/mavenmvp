@@ -60,6 +60,10 @@ public class RedebanService {
      */
     private final String SERVER_CERTIFICATE_ALIAS = "server";
 
+    private final String SERVER_SECURE_PORT = "9990";
+
+    private final String SERVER_UNSECURE_PORT = "443";
+
 
     // Função para converter bytes em formato PEM legível
     private static String convertToPem(byte[] keyBytes, String description) {
@@ -252,6 +256,16 @@ public class RedebanService {
         return serverCert.getPublicKey();
     }
 
+    public String executeSOAPAndHttpsRequestV0() throws IOException, UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+        final var xmlSOAPEnvelopClean = RedebanUtils.getXmlSOAPEnvelopClean();
+        System.out.println("############ xmlSOAPEnvelopClean: ############");
+        System.out.println(xmlSOAPEnvelopClean);
+        System.out.println("########################");
+
+        // initMutualTlsHandshake();
+        return sendSOAPRequest(xmlSOAPEnvelopClean, SERVER_UNSECURE_PORT);
+    }
+
     public String executeSOAPAndHttpsRequestV1() throws Exception {
         /*
          * 1 - criptografar o xml do body limpo:
@@ -315,7 +329,7 @@ public class RedebanService {
 
         // final var sc = initMutualTlsHandshake();
         initMutualTlsHandshake();
-        return sendSOAPRequest(xmlSOAPEnvelop);
+        return sendSOAPRequest(xmlSOAPEnvelop, SERVER_SECURE_PORT);
 
 
 
@@ -649,7 +663,7 @@ public class RedebanService {
 
         // final var sc = initMutualTlsHandshake();
         initMutualTlsHandshake();
-        return sendSOAPRequest(xmlSOAPEnvelop);
+        return sendSOAPRequest(xmlSOAPEnvelop, SERVER_SECURE_PORT);
 
 
 
@@ -719,7 +733,8 @@ public class RedebanService {
     }
 
     private String sendSOAPRequest(
-            final String xmlSOAPEnvelop
+            final String xmlSOAPEnvelop,
+            final String serverPort
     ) throws IOException {
 
         System.out.println("2222222222222222222222222");
@@ -729,8 +744,7 @@ public class RedebanService {
         /**
          * URL to our SOAP UI service
          */
-        final var SOAP_URI = "https://www.txstestrbm.com:9990/CompraElectronica/Compra";
-        // final var SOAP_URI = "https://www.txstestrbm.com:443/CompraElectronica/Compra";
+        final var SOAP_URI = String.format("https://www.txstestrbm.com:%s/CompraElectronica/Compra", serverPort);
         URL url = new URL(SOAP_URI);
         URLConnection urlConnection = url.openConnection();
 
@@ -1009,6 +1023,6 @@ public class RedebanService {
         };
         HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);*/
 
-        return sendSOAPRequest(finalSOAPStr);
+        return sendSOAPRequest(finalSOAPStr, SERVER_SECURE_PORT);
     }
 }

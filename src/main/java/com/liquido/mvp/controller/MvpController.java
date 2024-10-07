@@ -51,6 +51,18 @@ public class MvpController {
     @Autowired
     RedebanService redebanService;
 
+    @GetMapping("/mvp/v0/redeban")
+    public String redebanV0() {
+        /*
+         * - Usa um SOAP message limpo e envia para o server na porta 443
+         * */
+        try {
+            return redebanService.executeSOAPAndHttpsRequestV0();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @GetMapping("/mvp/v1/redeban")
     public String redebanV1() {
         /*
