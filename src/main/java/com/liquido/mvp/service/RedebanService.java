@@ -730,6 +730,7 @@ public class RedebanService {
          * URL to our SOAP UI service
          */
         final var SOAP_URI = "https://www.txstestrbm.com:9990/CompraElectronica/Compra";
+        // final var SOAP_URI = "https://www.txstestrbm.com:443/CompraElectronica/Compra";
         URL url = new URL(SOAP_URI);
         URLConnection urlConnection = url.openConnection();
 
@@ -756,23 +757,22 @@ public class RedebanService {
         httpsConn.setDoOutput(true);
         httpsConn.setDoInput(true);
 
-        System.out.println("44444444444AAAAAAAAAAAAAAAAAAA");
+        System.out.println("55555555555555555555555");
 
         OutputStream out = httpsConn.getOutputStream();
         out.write(buffer);
         out.close();
 
-        System.out.println("55555555555555555555555");
 
         // Read the response and write it to standard out.
         final var is = httpsConn.getInputStream();
-        System.out.println("55555555555555555555555-AAAAAAAAAAAAAAAAAAAAAAA");
+        System.out.println("66666666666666666666666");
 
         // InputStreamReader isr = new InputStreamReader(httpsConn.getInputStream());
         InputStreamReader isr = new InputStreamReader(is);
         BufferedReader in = new BufferedReader(isr);
 
-        System.out.println("66666666666666666666666");
+        System.out.println("777777777777777777777777");
 
         String responseString = null;
         String outputString="";
@@ -781,11 +781,10 @@ public class RedebanService {
             outputString = outputString + responseString;
         }
 
-        System.out.println("################# RESPONSE: ###################");
+        System.out.println("################# SERVER RESPONSE: ###################");
         System.out.println(outputString);
         System.out.println("####################################");
 
-        System.out.println("777777777777777777777777");
 
         return outputString;
     }
@@ -969,6 +968,7 @@ public class RedebanService {
 
         String finalSOAPStr = null;
         if (!encryptAndSign) {
+            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA");
             finalSOAPStr = Wss4jUtils.runWss4jEncryption(
                     crypto,
                     CLIENT_KEYSTORE_ALIAS,
@@ -979,6 +979,7 @@ public class RedebanService {
             );
             System.out.println("\n############# ENCRYPTED SOAP ENVELOP: ###############");
         } else {
+            System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBB");
             finalSOAPStr = Wss4jUtils.runWss4jEncryptionAndSignature(
                     crypto,
                     CLIENT_KEYSTORE_ALIAS,

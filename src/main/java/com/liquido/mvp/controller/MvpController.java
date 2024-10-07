@@ -54,7 +54,7 @@ public class MvpController {
     @GetMapping("/mvp/v1/redeban")
     public String redebanV1() {
         /*
-        * - Usa uma chave efêmera estático;
+        * - Usa uma chave efêmera estática;
         * - Usa um vetor de inicialização estático;
         * - Criptografa o body incluindo a tag <soap-env: Body>;
         * - Usa o ski estático = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
@@ -117,7 +117,7 @@ public class MvpController {
          * - Usa uma chave efêmera gerada dinamicamente (o iv deve ser gerenciado pela própria lib wss4j);
          * - Criptografa o body não incluindo a tag <soap-env: Body> (somente o conteúdo dentro do body);
          * - Usa uma constante para definir o ski, mas no final o resultado é = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
-         * - Envia o xml somente cifrado.
+         * - Envia o xml cifrado e assinado.
          * */
         try {
             return redebanService.executeWss4jSOAPAndHttpsRequest(true);
