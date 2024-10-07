@@ -2,9 +2,12 @@ package com.liquido.mvp.utils.crypto;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -29,17 +32,28 @@ public class RSACryptography {
         return keyFactory.generatePublic(keySpec);
     }
 
-    // Alternativa: Carrega chave pública de um certificado X.509
+    /*// Alternativa: Carrega chave pública de um certificado X.509
     public static PublicKey loadPublicKeyFromCertificate(String certificatePath) throws Exception {
         FileInputStream fis = new FileInputStream(certificatePath);
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
         X509Certificate certificate = (X509Certificate) certFactory.generateCertificate(fis);
         return certificate.getPublicKey();
+    }*/
+
+    // Criptografa a chave AES com a chave pública RSA
+    public static String encryptAESKeyWithRSA_V1(String aesKey, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding"); // RSA-1_5
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        // Criptografa a chave AES
+        byte[] cipherText = cipher.doFinal(aesKey.getBytes());
+        // return cipher.doFinal(aesKey.getEncoded());
+        return Base64.getEncoder().encodeToString(cipherText);
     }
 
     // Criptografa a chave AES com a chave pública RSA
     // public static byte[] encryptAESKeyWithRSA(SecretKey aesKey, PublicKey publicKey) throws Exception {
-    public static String encryptAESKeyWithRSA(SecretKey aesKey, PublicKey publicKey) throws Exception {
+    public static String encryptAESKeyWithRSA_V2(SecretKey aesKey, PublicKey publicKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding"); // RSA-1_5
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
@@ -116,5 +130,48 @@ public class RSACryptography {
     -----END PUBLIC KEY-----
     Se você estiver usando um certificado em vez de um arquivo .pem direto, o método alternativo loadPublicKeyFromCertificate pode ser usado.
     * */
+
+    // ######################################
+    // workaround
+    public static PublicKey getFakePublicKey() {
+
+        // A string fornecida representando o módulo da chave pública
+        String modulusString = "807744312583133394477498744621226914171017744380785411315030771326780550311859827092954574160543236215261492900615891131414221079755274516422040943595487528742741715823101373085834897805978923604671408631595238601404323136743512499411306315216766582897809604682016826972027283085764222774213027282343900575356929995975834086387603546027575916753482111791711871051728085516027758365065486421223218568207459071984950800314743226463295819343326219572938419997428657334922801407099967160366737099505161832222285381390335747073313751033377700991232770601394817019687016657982533431552379766823720515131039629072962463415090950410398038780249019218415822182914980288522500415042867241036275861698139565791043479598752252106969874053186658413582314297185527862045632364961191544015415686747675307181037116507326842084062236178504199370426839770755025606707327306421003911887132937046081640926920857340848802762159199255537975350790761562023070250822205437328689212432526886354160111154730120330740666261843591110827079984830261893949080770357254018122920936311350371382029334920467299742601638822631205789664006358633495997473504316041367930934352946538662295482853766783811141291209703397560780752246050163654339084866232225874056015245977";
+
+        // Converter o módulo da chave pública de string para BigInteger
+        BigInteger modulus = new BigInteger(modulusString);
+
+        // Definir o expoente público padrão (65537 é o valor comum para RSA)
+        BigInteger publicExponent = BigInteger.valueOf(65537);
+
+        // Criar a especificação da chave pública RSA
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, publicExponent);
+        // RSAPublicKeySpec keySpec = new RSAPublicKeySpec();
+
+        // Obter a instância de KeyFactory para RSA
+        KeyFactory keyFactory = null;
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Gerar a chave pública a partir da especificação
+        PublicKey publicKey = null;
+        try {
+            publicKey = keyFactory.generatePublic(keySpec);
+        } catch (InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+
+        return publicKey;
+
+        // Exibir a chave pública em formato X.509 (codificada em Base64)
+        /*byte[] encodedPublicKey = publicKey.getEncoded();
+        String publicKeyString = Base64.getEncoder().encodeToString(encodedPublicKey);
+
+        System.out.println("Chave Pública X.509 em Base64:");
+        System.out.println(publicKeyString);*/
+    }
 }
 

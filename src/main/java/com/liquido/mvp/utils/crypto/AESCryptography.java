@@ -9,6 +9,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -30,7 +31,32 @@ public class AESCryptography {
     }
 
     // Encrypt a string with AES-256-CBC
-    public static String encrypt(String plainText, SecretKey secretKey, IvParameterSpec iv) throws Exception {
+    public static String encryptV1(
+            final String plainText,
+            final String ephemeralKey,
+            final String initVector
+    ) throws Exception {
+
+        SecretKeySpec skeySpec = new SecretKeySpec(ephemeralKey.getBytes("UTF-8"), "AES");
+        IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+
+        // "RSA-OAEP-MGF1 with AES-256-CBC" or 3DES-CBC with RSA-1_5 (RSA PKCS #1 v1.5)
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING"); // xml -> EncryptionMethod = aes256-cbc
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+        byte[] cipherText = cipher.doFinal(plainText.getBytes());
+
+        // Encodes to Base64 for easy storage/transmission
+        return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+    // Encrypt a string with AES-256-CBC
+    public static String encryptV2(
+            final String plainText,
+            final SecretKey secretKey,
+            final IvParameterSpec iv
+    ) throws Exception {
+
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
         byte[] cipherText = cipher.doFinal(plainText.getBytes());

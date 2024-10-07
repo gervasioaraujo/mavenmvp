@@ -5,6 +5,7 @@ import org.apache.commons.codec.binary.Base64;
 import javax.crypto.Cipher;
 // import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.Mac;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -57,52 +58,29 @@ public class RedebanUtils {
             "B+W9CWi9Tcb5xfMfe5DH3cIy2UB3qmhHmE8NXV6pLnfvC9OLPeF0PsoD7zaYvHkt\n" +
             "JPDscGzYF6dA5vONBCQZouwtQgkBU/I5cA76aQM+xaX1sI1fWMANlsA=";
 
-    // private static final String key = "aesEncryptionKey";
-    // private static final String initVector = "encryptionIntVec"; // ??????????????????????
+    private static final String TERMINAL_TYPE = "WEB";
+    private static final String TERMINAL_ID = "SRB00085";
+    private static final String ACQUIRER_ID = "10203040";
+    private static final String TERMINAL_TRANSACTION_ID = "100001";
+    private static final String PAN_CAPTURE_MODE = "Manual";
+    private static final String PIN_CAPACITY = "Virtual";
 
-    public static String getXmlBodyClean() {
-        return "<soapenv:Body>\n" +
-                "      <com:compraProcesarSolicitud>\n" +
-                "         <com:cabeceraSolicitud>\n" +
-                "            <com:infoPuntoInteraccion>\n" +
-                "               <com1:tipoTerminal>WEB</com1:tipoTerminal>\n" +
-                "               <com1:idTerminal>SRB00085</com1:idTerminal>\n" +
-                "               <com1:idAdquiriente>10203040</com1:idAdquiriente>\n" +
-                "               <com1:idTransaccionTerminal>100001</com1:idTransaccionTerminal>\n" +
-                "               <com1:modoCapturaPAN>Manual</com1:modoCapturaPAN>\n" +
-                "               <com1:capacidadPIN>Virtual</com1:capacidadPIN>\n" +
-                "            </com:infoPuntoInteraccion>\n" +
-                "         </com:cabeceraSolicitud>\n" +
-                "\t\t         <com:idPersona>\n" +
-                "            <com1:tipoDocumento>CC</com1:tipoDocumento>\n" +
-                "            <com1:numDocumento>1000000001</com1:numDocumento>\n" +
-                "         </com:idPersona>\t\t\t\t \n" +
-                "         <com:infoMedioPago>\t\t\t\t\t\t\t\t\t\t  \n" +
-                "            <com:idTarjetaCredito>\n" +
-                "               <esb:franquicia>VISA</esb:franquicia>\n" +
-                "               <esb:numTarjeta>4005990000001247</esb:numTarjeta>\t\t\t\t\t\t   \n" +
-                "               <esb:fechaExpiracion>2025-12-31</esb:fechaExpiracion>\t\t\t\t\t\t\t   \n" +
-                "               <esb:codVerificacion>124</esb:codVerificacion>\n" +
-                "            </com:idTarjetaCredito>\t\t\t\t\t\t  \t\t\t\t\t\t  \n" +
-                "         </com:infoMedioPago>\n" +
-                "         <com:infoCompra>\n" +
-                "            <com:montoTotal>6</com:montoTotal>\n" +
-                "\t\t\t<com:infoImpuestos>\n" +
-                "               <com1:tipoImpuesto>IVA</com1:tipoImpuesto>\n" +
-                "               <com1:monto>1</com1:monto>\n" +
-                "               </com:infoImpuestos>\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n" +
-                "            <com:cantidadCuotas>1</com:cantidadCuotas> \n" +
-                "         </com:infoCompra>\n" +
-                "\t\t<com:infoPersona>\n" +
-                "            <com1:direccion>CALLE 20</com1:direccion>\n" +
-                "            <com1:ciudad>BOGOTA</com1:ciudad>\n" +
-                "            <com1:departamento>CU</com1:departamento>\n" +
-                "            <com1:emailComercio>correo@ejemplo.com</com1:emailComercio>\n" +
-                "            <com1:telefonoFijo>8607050</com1:telefonoFijo>\n" +
-                "            <com1:celular>30010203040</com1:celular>\n" +
-                "         </com:infoPersona>\t\t\t\t\t\t\t\t \n" +
-                "      </com:compraProcesarSolicitud>\n" +
-                "</soapenv:Body>";
+    private static final String DOCUMENT_TYPE = "CC";
+    private static final String DOCUMENT_NUMBER = "1000000001";
+
+    private static final String CARD_BRAND = "VISA";
+    private static final String CARD_NUMBER = "4005990000001247";
+    private static final String CARD_EXPIRATION_DATE = "2025-12-31";
+    private static final String CARD_CVC = "124";
+
+    private static final String CLEAN_CONTENT_TAG_BODY = "<ns0:compraProcesarSolicitud xmlns:ns0=\"http://www.rbm.com.co/esb/comercio/compra/\"><ns0:cabeceraSolicitud><ns0:infoPuntoInteraccion><ns1:tipoTerminal xmlns:ns1=\"http://www.rbm.com.co/esb/comercio/\">WEB</ns1:tipoTerminal><ns2:idTerminal xmlns:ns2=\"http://www.rbm.com.co/esb/comercio/\">SRB00085</ns2:idTerminal><ns3:idAdquiriente xmlns:ns3=\"http://www.rbm.com.co/esb/comercio/\">10203040</ns3:idAdquiriente><ns4:idTransaccionTerminal xmlns:ns4=\"http://www.rbm.com.co/esb/comercio/\">100001</ns4:idTransaccionTerminal><ns5:modoCapturaPAN xmlns:ns5=\"http://www.rbm.com.co/esb/comercio/\">Manual</ns5:modoCapturaPAN><ns6:capacidadPIN xmlns:ns6=\"http://www.rbm.com.co/esb/comercio/\">Virtual</ns6:capacidadPIN></ns0:infoPuntoInteraccion></ns0:cabeceraSolicitud><ns0:infoMedioPago><ns0:idTarjetaCredito><ns7:franquicia xmlns:ns7=\"http://www.rbm.com.co/esb/\">VISA</ns7:franquicia><ns8:numTarjeta xmlns:ns8=\"http://www.rbm.com.co/esb/\">4005990000001247</ns8:numTarjeta><ns9:fechaExpiracion xmlns:ns9=\"http://www.rbm.com.co/esb/\">2025-12-31</ns9:fechaExpiracion><ns10:codVerificacion xmlns:ns10=\"http://www.rbm.com.co/esb/\">124</ns10:codVerificacion></ns0:idTarjetaCredito></ns0:infoMedioPago><ns0:infoCompra><ns0:montoTotal>5000</ns0:montoTotal><ns0:referencia>CPNJDQMEW4LV</ns0:referencia><ns0:cantidadCuotas>2</ns0:cantidadCuotas><ns0:infoFacilitador><ns12:marcTerminal xmlns:ns12=\"http://www.rbm.com.co/esb/\">BOLD*Stg Juan</ns12:marcTerminal><ns13:FacilitadorID xmlns:ns13=\"http://www.rbm.com.co/esb/\">260278</ns13:FacilitadorID><ns14:SubMerchID xmlns:ns14=\"http://www.rbm.com.co/esb/\">NDH86D9U04</ns14:SubMerchID></ns0:infoFacilitador></ns0:infoCompra></ns0:compraProcesarSolicitud>";
+
+    public static String getXmlBodyCleanIncludingBodyTag() {
+        return String.format("<soap-env:Body>%s</soap-env:Body>", CLEAN_CONTENT_TAG_BODY);
+    }
+
+    public static String getXmlBodyCleanExcludingBodyTag() {
+        return CLEAN_CONTENT_TAG_BODY;
     }
 
     public static String getXmlEnvelopOnlyCiphedBody(
@@ -150,6 +128,19 @@ public class RedebanUtils {
                         "                \"\\t\\t</xenc:EncryptedData>\\n\" +\n" +
                         "                \"\\t</soap-env:Body>\\n\" +\n" +
                         "                \"</soap-env:Envelope>\"",
+                ski,
+                cipherEphemeralKeyValue,
+                USERNAME,
+                PASSWORD,
+                cipherBodyValue);
+    }
+
+    public static String getXmlSOAPEnvelopOnlyCiphedBody(
+            final String cipherBodyValue,
+            final String cipherEphemeralKeyValue,
+            final String ski
+    ) {
+        return String.format("<soap-env:Envelope xmlns:soap-env=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap-env:Header><wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" soap-env:mustUnderstand=\"1\"><xenc:EncryptedKey xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" Id=\"EK-52c73e2b-e722-434b-bd23-d0a99191e99f\"><xenc:EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#rsa-1_5\"/><ds:KeyInfo xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"><wsse:SecurityTokenReference><wsse:KeyIdentifier EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier\">%s</wsse:KeyIdentifier></wsse:SecurityTokenReference></ds:KeyInfo><xenc:CipherData><xenc:CipherValue>%s</xenc:CipherValue></xenc:CipherData><xenc:ReferenceList><xenc:DataReference URI=\"#ED-d99068fc-bf0e-41f1-b79b-3503e3dd72fd\"/></xenc:ReferenceList></xenc:EncryptedKey><wsse:UsernameToken wsu:Id=\"UsernameToken-7bb5307f-92d9-4cbb-8288-4351a7bacaaa\"><wsse:Username>%s</wsse:Username><wsse:Password Type=\"PasswordText\">%s</wsse:Password></wsse:UsernameToken></wsse:Security></soap-env:Header><soap-env:Body><xenc:EncryptedData xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" Id=\"ED-d99068fc-bf0e-41f1-b79b-3503e3dd72fd\" Type=\"http://www.w3.org/2001/04/xmlenc#Content\"><xenc:EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#aes256-cbc\"/><xenc:CipherData><xenc:CipherValue>%s</xenc:CipherValue></xenc:CipherData></xenc:EncryptedData></soap-env:Body></soap-env:Envelope>",
                 ski,
                 cipherEphemeralKeyValue,
                 USERNAME,
@@ -231,27 +222,25 @@ public class RedebanUtils {
                 cipherBodyValue);
     }
 
-    public static String encryptSOAPBodyV1(String bodyClean, String ephemeralKey) {
+    /*public static String encryptSOAPBodyV1(String bodyClean, String ephemeralKey, String initVector) {
         try {
-            // IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
-            // SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
-
             SecretKeySpec skeySpec = new SecretKeySpec(ephemeralKey.getBytes("UTF-8"), "AES");
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
 
             // "RSA-OAEP-MGF1 with AES-256-CBC" or 3DES-CBC with RSA-1_5 (RSA PKCS #1 v1.5)
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING"); // xml -> EncryptionMethod = aes256-cbc
-            // cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
-            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
 
             byte[] encrypted = cipher.doFinal(bodyClean.getBytes());
+
             return Base64.encodeBase64String(encrypted);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;
-    }
+    }*/
 
-    public static String encryptEphemeralKeyV1(String ephemeralKey, String publicKeyPath) {
+    /*public static String encryptEphemeralKeyV1(String ephemeralKey, String publicKeyPath) {
         FileInputStream is = null;
 
         try {
@@ -278,7 +267,7 @@ public class RedebanUtils {
             ex.printStackTrace();
         }
         return null;
-    }
+    }*/
 
     public static String signSOAPBodyV1(String ecryptedSOAPBody, String privateKeyPath) {
         File file = null;
@@ -423,7 +412,7 @@ public class RedebanUtils {
         }
     }*/
 
-    private static String bytesToHex(byte[] encodedhash) {
+    /*private static String bytesToHex(byte[] encodedhash) {
         // Convert byte array into a hexadecimal string
         StringBuilder hexString = new StringBuilder();
         for (byte b : encodedhash) {
@@ -434,7 +423,7 @@ public class RedebanUtils {
             hexString.append(hex);
         }
         return hexString.toString();
-    }
+    }*/
 
     /*private static String bytesToHex(byte[] bytes) {
         final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
@@ -447,311 +436,14 @@ public class RedebanUtils {
         return new String(hexChars);
     }*/
 
-    public static String getBasicCleanSOAPEnvelop() {
-        return "<Envelope\n" +
-                "\txmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\"\n" +
-                "\txmlns:soap-env=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                "\t<Body ns15:Id=\"id-4f5036d7-4c08-45ab-a484-7ce5411d097e\"\n" +
-                "\t\txmlns:ns15=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\n" +
-                "\t\t<ns0:compraProcesarSolicitud\n" +
-                "\t\t\txmlns:ns0=\"http://www.rbm.com.co/esb/comercio/compra/\">\n" +
-                "\t\t\t<ns0:cabeceraSolicitud>\n" +
-                "\t\t\t\t<ns0:infoPuntoInteraccion>\n" +
-                "\t\t\t\t\t<ns1:tipoTerminal\n" +
-                "\t\t\t\t\t\txmlns:ns1=\"http://www.rbm.com.co/esb/comercio/\">POS\n" +
-                "\t\t\t\t\t</ns1:tipoTerminal>\n" +
-                "\t\t\t\t\t<ns2:idTerminal\n" +
-                "\t\t\t\t\t\txmlns:ns2=\"http://www.rbm.com.co/esb/comercio/\">SRB01589\n" +
-                "\t\t\t\t\t</ns2:idTerminal>\n" +
-                "\t\t\t\t\t<ns3:idAdquiriente\n" +
-                "\t\t\t\t\t\txmlns:ns3=\"http://www.rbm.com.co/esb/comercio/\">20304102\n" +
-                "\t\t\t\t\t</ns3:idAdquiriente>\n" +
-                "\t\t\t\t\t<ns4:idTransaccionTerminal\n" +
-                "\t\t\t\t\t\txmlns:ns4=\"http://www.rbm.com.co/esb/comercio/\">326945\n" +
-                "\t\t\t\t\t</ns4:idTransaccionTerminal>\n" +
-                "\t\t\t\t\t<ns5:modoCapturaPAN\n" +
-                "\t\t\t\t\t\txmlns:ns5=\"http://www.rbm.com.co/esb/comercio/\">Banda\n" +
-                "\t\t\t\t\t</ns5:modoCapturaPAN>\n" +
-                "\t\t\t\t\t<ns6:capacidadPIN\n" +
-                "\t\t\t\t\t\txmlns:ns6=\"http://www.rbm.com.co/esb/comercio/\">Permitido\n" +
-                "\t\t\t\t\t</ns6:capacidadPIN>\n" +
-                "\t\t\t\t</ns0:infoPuntoInteraccion>\n" +
-                "\t\t\t</ns0:cabeceraSolicitud>\n" +
-                "\t\t\t<ns0:infoMedioPago>\n" +
-                "\t\t\t\t<ns0:idTrack>\n" +
-                "\t\t\t\t\t<ns7:Franquicia\n" +
-                "\t\t\t\t\t\txmlns:ns7=\"http://www.rbm.com.co/esb/\">MasterCard\n" +
-                "\t\t\t\t\t</ns7:Franquicia>\n" +
-                "\t\t\t\t\t<ns8:track\n" +
-                "\t\t\t\t\t\txmlns:ns8=\"http://www.rbm.com.co/esb/\">2223590400108111=25121011111199911111\n" +
-                "\t\t\t\t\t</ns8:track>\n" +
-                "\t\t\t\t\t<ns9:tipoCuenta\n" +
-                "\t\t\t\t\t\txmlns:ns9=\"http://www.rbm.com.co/esb/\">Credito\n" +
-                "\t\t\t\t\t</ns9:tipoCuenta>\n" +
-                "\t\t\t\t</ns0:idTrack>\n" +
-                "\t\t\t\t<ns0:infoAutenticacion>\n" +
-                "\t\t\t\t\t<ns10:clave\n" +
-                "\t\t\t\t\t\txmlns:ns10=\"http://www.rbm.com.co/esb/\">26B03DA72C4B5F35\n" +
-                "\t\t\t\t\t</ns10:clave>\n" +
-                "\t\t\t\t\t<ns11:formatoClave\n" +
-                "\t\t\t\t\t\txmlns:ns11=\"http://www.rbm.com.co/esb/\">3DES\n" +
-                "\t\t\t\t\t</ns11:formatoClave>\n" +
-                "\t\t\t\t</ns0:infoAutenticacion>\n" +
-                "\t\t\t</ns0:infoMedioPago>\n" +
-                "\t\t\t<ns0:infoCompra>\n" +
-                "\t\t\t\t<ns0:montoTotal>5000</ns0:montoTotal>\n" +
-                "\t\t\t\t<ns0:referencia>CPNJDQMEW4LV</ns0:referencia>\n" +
-                "\t\t\t\t<ns0:cantidadCuotas>2</ns0:cantidadCuotas>\n" +
-                "\t\t\t\t<ns0:infoFacilitador>\n" +
-                "\t\t\t\t\t<ns12:marcTerminal\n" +
-                "\t\t\t\t\t\txmlns:ns12=\"http://www.rbm.com.co/esb/\">BOLD*Stg Juan\n" +
-                "\t\t\t\t\t</ns12:marcTerminal>\n" +
-                "\t\t\t\t\t<ns13:FacilitadorID\n" +
-                "\t\t\t\t\t\txmlns:ns13=\"http://www.rbm.com.co/esb/\">260278\n" +
-                "\t\t\t\t\t</ns13:FacilitadorID>\n" +
-                "\t\t\t\t\t<ns14:SubMerchID\n" +
-                "\t\t\t\t\t\txmlns:ns14=\"http://www.rbm.com.co/esb/\">NDH86D9U04\n" +
-                "\t\t\t\t\t</ns14:SubMerchID>\n" +
-                "\t\t\t\t</ns0:infoFacilitador>\n" +
-                "\t\t\t</ns0:infoCompra>\n" +
-                "\t\t</ns0:compraProcesarSolicitud>\n" +
-                "\t</Body>\n" +
-                "</Envelope>";
+    public static String getBasicSOAPEnvelopBrazilTeam() {
+        return String.format("<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\"><Body xmlns:wstxns1=\"http://schemas.xmlsoap.org/soap/envelope/\" wstxns1:type=\"purchase\">%s</Body></Envelope>",
+                CLEAN_CONTENT_TAG_BODY);
     }
 
-    public static String getBasicSOAPEnvelop() {
-        return "<Envelope\n" +
-                "\txmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                "\t<Body\n" +
-                "\t\txmlns:wstxns1=\"http://schemas.xmlsoap.org/soap/envelope/\" wstxns1:type=\"purchase\">\n" +
-                "\t\t<ns0:compraProcesarSolicitud\n" +
-                "\t\t\txmlns:ns0=\"http://www.rbm.com.co/esb/comercio/compra/\">\n" +
-                "\t\t\t<ns0:cabeceraSolicitud>\n" +
-                "\t\t\t\t<ns0:infoPuntoInteraccion>\n" +
-                "\t\t\t\t\t<ns1:tipoTerminal\n" +
-                "\t\t\t\t\t\txmlns:ns1=\"http://www.rbm.com.co/esb/comercio/\">POS\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns1:tipoTerminal>\n" +
-                "\t\t\t\t\t<ns2:idTerminal\n" +
-                "\t\t\t\t\t\txmlns:ns2=\"http://www.rbm.com.co/esb/comercio/\">SRB01589\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns2:idTerminal>\n" +
-                "\t\t\t\t\t<ns3:idAdquiriente\n" +
-                "\t\t\t\t\t\txmlns:ns3=\"http://www.rbm.com.co/esb/comercio/\">20304102\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns3:idAdquiriente>\n" +
-                "\t\t\t\t\t<ns4:idTransaccionTerminal\n" +
-                "\t\t\t\t\t\txmlns:ns4=\"http://www.rbm.com.co/esb/comercio/\">326945\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns4:idTransaccionTerminal>\n" +
-                "\t\t\t\t\t<ns5:modoCapturaPAN\n" +
-                "\t\t\t\t\t\txmlns:ns5=\"http://www.rbm.com.co/esb/comercio/\">Banda\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns5:modoCapturaPAN>\n" +
-                "\t\t\t\t\t<ns6:capacidadPIN\n" +
-                "\t\t\t\t\t\txmlns:ns6=\"http://www.rbm.com.co/esb/comercio/\">Permitido\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns6:capacidadPIN>\n" +
-                "\t\t\t\t</ns0:infoPuntoInteraccion>\n" +
-                "\t\t\t</ns0:cabeceraSolicitud>\n" +
-                "\t\t\t<ns0:infoMedioPago>\n" +
-                "\t\t\t\t<ns0:idTrack>\n" +
-                "\t\t\t\t\t<ns7:Franquicia\n" +
-                "\t\t\t\t\t\txmlns:ns7=\"http://www.rbm.com.co/esb/\">MasterCard\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns7:Franquicia>\n" +
-                "\t\t\t\t\t<ns8:track\n" +
-                "\t\t\t\t\t\txmlns:ns8=\"http://www.rbm.com.co/esb/\">2223590400108111=25121011111199911111\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns8:track>\n" +
-                "\t\t\t\t\t<ns9:tipoCuenta\n" +
-                "\t\t\t\t\t\txmlns:ns9=\"http://www.rbm.com.co/esb/\">Credito\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns9:tipoCuenta>\n" +
-                "\t\t\t\t</ns0:idTrack>\n" +
-                "\t\t\t\t<ns0:infoAutenticacion>\n" +
-                "\t\t\t\t\t<ns10:clave\n" +
-                "\t\t\t\t\t\txmlns:ns10=\"http://www.rbm.com.co/esb/\">26B03DA72C4B5F35\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns10:clave>\n" +
-                "\t\t\t\t\t<ns11:formatoClave\n" +
-                "\t\t\t\t\t\txmlns:ns11=\"http://www.rbm.com.co/esb/\">3DES\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns11:formatoClave>\n" +
-                "\t\t\t\t</ns0:infoAutenticacion>\n" +
-                "\t\t\t</ns0:infoMedioPago>\n" +
-                "\t\t\t<ns0:infoCompra>\n" +
-                "\t\t\t\t<ns0:montoTotal>5000</ns0:montoTotal>\n" +
-                "\t\t\t\t<ns0:referencia>CPNJDQMEW4LV</ns0:referencia>\n" +
-                "\t\t\t\t<ns0:cantidadCuotas>2</ns0:cantidadCuotas>\n" +
-                "\t\t\t\t<ns0:infoFacilitador>\n" +
-                "\t\t\t\t\t<ns12:marcTerminal\n" +
-                "\t\t\t\t\t\txmlns:ns12=\"http://www.rbm.com.co/esb/\">BOLD*Stg Juan\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns12:marcTerminal>\n" +
-                "\t\t\t\t\t<ns13:FacilitadorID\n" +
-                "\t\t\t\t\t\txmlns:ns13=\"http://www.rbm.com.co/esb/\">260278\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns13:FacilitadorID>\n" +
-                "\t\t\t\t\t<ns14:SubMerchID\n" +
-                "\t\t\t\t\t\txmlns:ns14=\"http://www.rbm.com.co/esb/\">NDH86D9U04\n" +
-                "\t\t\t\t\t\n" +
-                "\t\t\t\t\t</ns14:SubMerchID>\n" +
-                "\t\t\t\t</ns0:infoFacilitador>\n" +
-                "\t\t\t</ns0:infoCompra>\n" +
-                "\t\t</ns0:compraProcesarSolicitud>\n" +
-                "\t</Body>\n" +
-                "</Envelope>";
-    }
-
-    // China team
+    /*// China team
     public static String getBasicSOAPEnvelopChinaTeam() {
-        return "<Envelope\n" +
-                "\txmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                "\t<Body\n" +
-                "\t\txmlns:wstxns1=\"http://schemas.xmlsoap.org/soap/envelope/\" wstxns1:type=\"purchase\">\n" +
-                "\t\t<wstxns2:compraProcesarSolicitud\n" +
-                "\t\t\txmlns:wstxns2=\"http://www.rbm.com.co/esb/comercio/compra/\">\n" +
-                "\t\t\t<wstxns2:cabeceraSolicitud>\n" +
-                "\t\t\t\t<wstxns2:infoPuntoInteraccion>\n" +
-                "\t\t\t\t\t<wstxns3:tipoTerminal\n" +
-                "\t\t\t\t\t\txmlns:wstxns3=\"http://www.rbm.com.co/esb/comercio/\">WEB\n" +
-                "\t\t\t\t\t</wstxns3:tipoTerminal>\n" +
-                "\t\t\t\t\t<wstxns4:idTerminal\n" +
-                "\t\t\t\t\t\txmlns:wstxns4=\"http://www.rbm.com.co/esb/comercio/\">SRB00085\n" +
-                "\t\t\t\t\t</wstxns4:idTerminal>\n" +
-                "\t\t\t\t\t<wstxns5:idAdquiriente\n" +
-                "\t\t\t\t\t\txmlns:wstxns5=\"http://www.rbm.com.co/esb/comercio/\">10203040\n" +
-                "\t\t\t\t\t</wstxns5:idAdquiriente>\n" +
-                "\t\t\t\t\t<wstxns6:idTransaccionTerminal\n" +
-                "\t\t\t\t\t\txmlns:wstxns6=\"http://www.rbm.com.co/esb/comercio/\">100001\n" +
-                "\t\t\t\t\t</wstxns6:idTransaccionTerminal>\n" +
-                "\t\t\t\t\t<wstxns7:modoCapturaPAN\n" +
-                "\t\t\t\t\t\txmlns:wstxns7=\"http://www.rbm.com.co/esb/comercio/\">Manual\n" +
-                "\t\t\t\t\t</wstxns7:modoCapturaPAN>\n" +
-                "\t\t\t\t\t<wstxns8:capacidadPIN\n" +
-                "\t\t\t\t\t\txmlns:wstxns8=\"http://www.rbm.com.co/esb/comercio/\">Virtual\n" +
-                "\t\t\t\t\t</wstxns8:capacidadPIN>\n" +
-                "\t\t\t\t</wstxns2:infoPuntoInteraccion>\n" +
-                "\t\t\t</wstxns2:cabeceraSolicitud>\n" +
-                "\t\t\t<wstxns2:idPersona>\n" +
-                "\t\t\t\t<wstxns9:tipoDocumento\n" +
-                "\t\t\t\t\txmlns:wstxns9=\"http://www.rbm.com.co/esb/comercio/\">CC\n" +
-                "\t\t\t\t</wstxns9:tipoDocumento>\n" +
-                "\t\t\t\t<wstxns10:numDocumento\n" +
-                "\t\t\t\t\txmlns:wstxns10=\"http://www.rbm.com.co/esb/comercio/\">1081408954\n" +
-                "\t\t\t\t</wstxns10:numDocumento>\n" +
-                "\t\t\t</wstxns2:idPersona>\n" +
-                "\t\t\t<wstxns2:infoMedioPago>\n" +
-                "\t\t\t\t<wstxns2:idTarjetaCredito>\n" +
-                "\t\t\t\t\t<wstxns11:franquicia\n" +
-                "\t\t\t\t\t\txmlns:wstxns11=\"http://www.rbm.com.co/esb/\">VISA\n" +
-                "\t\t\t\t\t</wstxns11:franquicia>\n" +
-                "\t\t\t\t\t<wstxns12:numTarjeta\n" +
-                "\t\t\t\t\t\txmlns:wstxns12=\"http://www.rbm.com.co/esb/\">4005990000001247\n" +
-                "\t\t\t\t\t</wstxns12:numTarjeta>\n" +
-                "\t\t\t\t\t<wstxns13:fechaExpiracion\n" +
-                "\t\t\t\t\t\txmlns:wstxns13=\"http://www.rbm.com.co/esb/\">2025-12-31\n" +
-                "\t\t\t\t\t</wstxns13:fechaExpiracion>\n" +
-                "\t\t\t\t\t<wstxns14:codVerificacion\n" +
-                "\t\t\t\t\t\txmlns:wstxns14=\"http://www.rbm.com.co/esb/\">124\n" +
-                "\t\t\t\t\t</wstxns14:codVerificacion>\n" +
-                "\t\t\t\t</wstxns2:idTarjetaCredito>\n" +
-                "\t\t\t</wstxns2:infoMedioPago>\n" +
-                "\t\t\t<wstxns2:infoCompra>\n" +
-                "\t\t\t\t<wstxns2:montoTotal>10000.00</wstxns2:montoTotal>\n" +
-                "\t\t\t\t<wstxns2:infoImpuestos>\n" +
-                "\t\t\t\t\t<wstxns15:tipoImpuesto\n" +
-                "\t\t\t\t\t\txmlns:wstxns15=\"http://www.rbm.com.co/esb/comercio/\">IVA\n" +
-                "\t\t\t\t\t</wstxns15:tipoImpuesto>\n" +
-                "\t\t\t\t\t<wstxns16:monto\n" +
-                "\t\t\t\t\t\txmlns:wstxns16=\"http://www.rbm.com.co/esb/comercio/\">0.00\n" +
-                "\t\t\t\t\t</wstxns16:monto>\n" +
-                "\t\t\t\t</wstxns2:infoImpuestos>\n" +
-                "\t\t\t\t<wstxns2:cantidadCuotas>1</wstxns2:cantidadCuotas>\n" +
-                "\t\t\t\t<wstxns2:referencia>2b055320e4b542d2b990891bf</wstxns2:referencia>\n" +
-                "\t\t\t</wstxns2:infoCompra>\n" +
-                "\t\t</wstxns2:compraProcesarSolicitud>\n" +
-                "\t</Body>\n" +
-                "</Envelope>";
-    }
+        return "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\"><Body xmlns:wstxns1=\"http://schemas.xmlsoap.org/soap/envelope/\" wstxns1:type=\"purchase\"><wstxns2:compraProcesarSolicitud xmlns:wstxns2=\"http://www.rbm.com.co/esb/comercio/compra/\"><wstxns2:cabeceraSolicitud><wstxns2:infoPuntoInteraccion><wstxns3:tipoTerminal xmlns:wstxns3=\"http://www.rbm.com.co/esb/comercio/\">WEB</wstxns3:tipoTerminal><wstxns4:idTerminal xmlns:wstxns4=\"http://www.rbm.com.co/esb/comercio/\">SRB00085</wstxns4:idTerminal><wstxns5:idAdquiriente xmlns:wstxns5=\"http://www.rbm.com.co/esb/comercio/\">10203040</wstxns5:idAdquiriente><wstxns6:idTransaccionTerminal xmlns:wstxns6=\"http://www.rbm.com.co/esb/comercio/\">100001</wstxns6:idTransaccionTerminal><wstxns7:modoCapturaPAN xmlns:wstxns7=\"http://www.rbm.com.co/esb/comercio/\">Manual</wstxns7:modoCapturaPAN><wstxns8:capacidadPIN xmlns:wstxns8=\"http://www.rbm.com.co/esb/comercio/\">Virtual</wstxns8:capacidadPIN></wstxns2:infoPuntoInteraccion></wstxns2:cabeceraSolicitud><wstxns2:idPersona><wstxns9:tipoDocumento xmlns:wstxns9=\"http://www.rbm.com.co/esb/comercio/\">CC</wstxns9:tipoDocumento><wstxns10:numDocumento xmlns:wstxns10=\"http://www.rbm.com.co/esb/comercio/\">1081408954</wstxns10:numDocumento></wstxns2:idPersona><wstxns2:infoMedioPago><wstxns2:idTarjetaCredito><wstxns11:franquicia xmlns:wstxns11=\"http://www.rbm.com.co/esb/\">VISA</wstxns11:franquicia><wstxns12:numTarjeta xmlns:wstxns12=\"http://www.rbm.com.co/esb/\">4005990000001247</wstxns12:numTarjeta><wstxns13:fechaExpiracion xmlns:wstxns13=\"http://www.rbm.com.co/esb/\">2025-12-31</wstxns13:fechaExpiracion><wstxns14:codVerificacion xmlns:wstxns14=\"http://www.rbm.com.co/esb/\">124</wstxns14:codVerificacion></wstxns2:idTarjetaCredito></wstxns2:infoMedioPago><wstxns2:infoCompra><wstxns2:montoTotal>10000.00</wstxns2:montoTotal><wstxns2:infoImpuestos><wstxns15:tipoImpuesto xmlns:wstxns15=\"http://www.rbm.com.co/esb/comercio/\">IVA</wstxns15:tipoImpuesto><wstxns16:monto xmlns:wstxns16=\"http://www.rbm.com.co/esb/comercio/\">0.00</wstxns16:monto></wstxns2:infoImpuestos><wstxns2:cantidadCuotas>1</wstxns2:cantidadCuotas><wstxns2:referencia>2b055320e4b542d2b990891bf</wstxns2:referencia></wstxns2:infoCompra></wstxns2:compraProcesarSolicitud></Body></Envelope>";
+    }*/
 
-    public static String getCleanBodyContent() {
-        return "<ns0:compraProcesarSolicitud\n" +
-                "\t\t\t\t\txmlns:ns0=\"http://www.rbm.com.co/esb/comercio/compra/\">\n" +
-                "\t\t\t\t\t<ns0:cabeceraSolicitud>\n" +
-                "\t\t\t\t\t\t<ns0:infoPuntoInteraccion>\n" +
-                "\t\t\t\t\t\t\t<ns1:tipoTerminal\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns1=\"http://www.rbm.com.co/esb/comercio/\">POS\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns1:tipoTerminal>\n" +
-                "\t\t\t\t\t\t\t<ns2:idTerminal\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns2=\"http://www.rbm.com.co/esb/comercio/\">SRB01589\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns2:idTerminal>\n" +
-                "\t\t\t\t\t\t\t<ns3:idAdquiriente\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns3=\"http://www.rbm.com.co/esb/comercio/\">20304102\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns3:idAdquiriente>\n" +
-                "\t\t\t\t\t\t\t<ns4:idTransaccionTerminal\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns4=\"http://www.rbm.com.co/esb/comercio/\">326945\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns4:idTransaccionTerminal>\n" +
-                "\t\t\t\t\t\t\t<ns5:modoCapturaPAN\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns5=\"http://www.rbm.com.co/esb/comercio/\">Banda\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns5:modoCapturaPAN>\n" +
-                "\t\t\t\t\t\t\t<ns6:capacidadPIN\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns6=\"http://www.rbm.com.co/esb/comercio/\">Permitido\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns6:capacidadPIN>\n" +
-                "\t\t\t\t\t\t</ns0:infoPuntoInteraccion>\n" +
-                "\t\t\t\t\t</ns0:cabeceraSolicitud>\n" +
-                "\t\t\t\t\t<ns0:infoMedioPago>\n" +
-                "\t\t\t\t\t\t<ns0:idTrack>\n" +
-                "\t\t\t\t\t\t\t<ns7:Franquicia\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns7=\"http://www.rbm.com.co/esb/\">MasterCard\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns7:Franquicia>\n" +
-                "\t\t\t\t\t\t\t<ns8:track\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns8=\"http://www.rbm.com.co/esb/\">2223590400108111=25121011111199911111\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns8:track>\n" +
-                "\t\t\t\t\t\t\t<ns9:tipoCuenta\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns9=\"http://www.rbm.com.co/esb/\">Credito\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns9:tipoCuenta>\n" +
-                "\t\t\t\t\t\t</ns0:idTrack>\n" +
-                "\t\t\t\t\t\t<ns0:infoAutenticacion>\n" +
-                "\t\t\t\t\t\t\t<ns10:clave\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns10=\"http://www.rbm.com.co/esb/\">26B03DA72C4B5F35\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns10:clave>\n" +
-                "\t\t\t\t\t\t\t<ns11:formatoClave\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns11=\"http://www.rbm.com.co/esb/\">3DES\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns11:formatoClave>\n" +
-                "\t\t\t\t\t\t</ns0:infoAutenticacion>\n" +
-                "\t\t\t\t\t</ns0:infoMedioPago>\n" +
-                "\t\t\t\t\t<ns0:infoCompra>\n" +
-                "\t\t\t\t\t\t<ns0:montoTotal>5000</ns0:montoTotal>\n" +
-                "\t\t\t\t\t\t<ns0:referencia>CPNJDQMEW4LV</ns0:referencia>\n" +
-                "\t\t\t\t\t\t<ns0:cantidadCuotas>2</ns0:cantidadCuotas>\n" +
-                "\t\t\t\t\t\t<ns0:infoFacilitador>\n" +
-                "\t\t\t\t\t\t\t<ns12:marcTerminal\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns12=\"http://www.rbm.com.co/esb/\">BOLD*Stg Juan\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns12:marcTerminal>\n" +
-                "\t\t\t\t\t\t\t<ns13:FacilitadorID\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns13=\"http://www.rbm.com.co/esb/\">260278\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns13:FacilitadorID>\n" +
-                "\t\t\t\t\t\t\t<ns14:SubMerchID\n" +
-                "\t\t\t\t\t\t\t\txmlns:ns14=\"http://www.rbm.com.co/esb/\">NDH86D9U04\n" +
-                "                                        \n" +
-                "\t\t\t\t\t\t\t</ns14:SubMerchID>\n" +
-                "\t\t\t\t\t\t</ns0:infoFacilitador>\n" +
-                "\t\t\t\t\t</ns0:infoCompra>\n" +
-                "\t\t\t\t</ns0:compraProcesarSolicitud>";
-    }
 }

@@ -26,14 +26,12 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.soap.SOAPException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import java.net.HttpURLConnection;
 // import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -46,29 +44,98 @@ import java.util.Base64;
 public class RedebanService {
 
     /**
-     * Path to the clients keystore
+     * Path to the client keystore
      */
     private final String CLIENT_KEYSTORE_PATH = "keystore.jks";
     /**
-     * Password for the clients keystore
+     * Password for the client keystore
      */
     private final String CLIENT_KEYSTORE_PASSWORD = "liquido123";
     /**
-     * The servers certificate's alias within the clients keystore.
+     * The client's alias within the client keystore.
      */
-    private final String SERVER_CERTIFICATE_ALIAS = "liauidoTest";
+    private final String CLIENT_KEYSTORE_ALIAS = "liauidoTest"; // TODO: dentro do keystore.jks existe um "liauidotest" (todo em lowercase) ??????????????????
+    /**
+     * The server certificate's alias within the client keystore.
+     */
+    private final String SERVER_CERTIFICATE_ALIAS = "server";
+
+
+    // Função para converter bytes em formato PEM legível
+    private static String convertToPem(byte[] keyBytes, String description) {
+        StringWriter writer = new StringWriter();
+        writer.write("-----BEGIN " + description + "-----\n");
+        writer.write(Base64.getMimeEncoder(64, new byte[]{'\n'}).encodeToString(keyBytes));
+        writer.write("\n-----END " + description + "-----\n");
+        return writer.toString();
+    }
 
     /*
      * https://gist.github.com/benleov/292fb7ee692e830f5dd1
      * */
-    private SSLContext configureCertificate() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
-    // private void configureCertificate() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
+    // private SSLContext initMutualTlsHandshake() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
+    private void initMutualTlsHandshake() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException, UnrecoverableKeyException, KeyManagementException {
 
         /*
          * Load the keystore
          */
         char[] password = CLIENT_KEYSTORE_PASSWORD.toCharArray();
-        KeyStore keystore = loadKeystore(CLIENT_KEYSTORE_PATH, password);
+        KeyStore keystore = loadKeystore(password);
+
+        // ####################################################################
+        /*System.out.println("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Checking keystore.jks file... @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        // Obtém todas as entradas do keystore
+        Enumeration<String> aliases = keystore.aliases();
+        // Itera sobre as entradas e extrai certificados
+        while (aliases.hasMoreElements()) {
+            String alias = aliases.nextElement();
+
+            System.out.println("\n************ alias: ****************");
+
+            // #########################################################
+            *//*if (alias.equals(CLIENT_KEYSTORE_ALIAS.toLowerCase())) {
+                alias = CLIENT_KEYSTORE_ALIAS;
+            }*//*
+            // #########################################################
+            System.out.println(alias);
+
+            if (keystore.isCertificateEntry(alias)) {
+                Certificate cert = keystore.getCertificate(alias);
+                System.out.println("Certificado encontrado para o alias: " + alias);
+                System.out.println(cert);
+            }  else if (keystore.isKeyEntry(alias)) {
+                Certificate[] chain = keystore.getCertificateChain(alias);
+                if (chain != null) {
+                    System.out.println("Certificado(s) associado(s) ao alias " + alias + ":");
+                    for (Certificate cert : chain) {
+                        System.out.println(cert);
+
+                        PublicKey publicKey = cert.getPublicKey();
+                        System.out.println("Chave Pública: " + publicKey);
+
+                        // Exibe a chave pública em formato PEM (Base64)
+                        String publicKeyPem = convertToPem(cert.getPublicKey().getEncoded(), "PUBLIC KEY");
+                        System.out.println("Chave Pública (formato PEM):\n" + publicKeyPem);
+                    }
+
+                    // Obtém a chave privada
+                    PrivateKey privateKey = (PrivateKey) keystore.getKey(alias, CLIENT_KEYSTORE_PASSWORD.toCharArray());
+
+                    // Exibe a chave privada em formato PEM (Base64)
+                    String privateKeyPem = convertToPem(privateKey.getEncoded(), "PRIVATE KEY");
+                    System.out.println("Chave Privada (formato PEM):\n" + privateKeyPem);
+                } else {
+                    System.out.println("Nenhum certificado associado à chave privada do alias " + alias);
+                }
+            } else if (keystore.entryInstanceOf(alias, KeyStore.SecretKeyEntry.class)) {
+                System.out.println("Alias " + alias + " contém uma chave secreta.");
+            } else {
+                System.out.println("Alias " + alias + " é de tipo desconhecido.");
+            }
+            System.out.println("****************************\n");
+        }
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");*/
+        // ####################################################################
 
         /*
          * Get the servers trusted certificate.
@@ -96,13 +163,27 @@ public class RedebanService {
                             "null or zero-length certificate chain");
                 }
 
-                if (authType == null || authType.length() == 0) {
+                // if (authType == null || authType.length() == 0) {
+                if (authType == null || authType.isEmpty()) {
                     throw new IllegalArgumentException(
                             "null or zero-length authentication type");
                 }
 
-                // check if certificate sent is your CA's
+                /*System.out.println("\n****************************");
+                System.out.println("certs.length: " + certs.length);
+                System.out.println("****************************");
 
+                System.out.println("\n************ certs[0]: ****************");
+                System.out.println("certs[0].getPublicKey(): " + certs[0].getPublicKey());
+                System.out.println("certs[0].getType(): " + certs[0].getType());
+                System.out.println("****************************");
+
+                System.out.println("\n************ trusted: ****************");
+                System.out.println("trusted.getPublicKey(): " + trusted.getPublicKey());
+                System.out.println("trusted.getType(): " + trusted.getType());
+                System.out.println("****************************");*/
+
+                // check if certificate sent is your CA's
                 if (!certs[0].equals(trusted)) {
 
                     // check if its been signed by the CA
@@ -129,14 +210,24 @@ public class RedebanService {
         sc.init(kmf.getKeyManagers(), trustManager,
                 new java.security.SecureRandom());
 
-        return sc;
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // create an all-trusting host name verifier
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+
+        // return sc;
     }
 
-    private KeyStore loadKeystore(String filePath, char[] password)
+    private KeyStore loadKeystore(char[] password)
             throws NoSuchAlgorithmException, CertificateException, IOException,
             KeyStoreException {
 
-        FileInputStream is = new FileInputStream(new File(filePath));
+        FileInputStream is = new FileInputStream(new File(CLIENT_KEYSTORE_PATH));
 
         final KeyStore keystore = KeyStore.getInstance(KeyStore
                 .getDefaultType());
@@ -146,47 +237,47 @@ public class RedebanService {
         return keystore;
     }
 
-    public String executeSOAPAndHttpsRequestV1() throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException, KeyManagementException, SOAPException {
+    private PublicKey getServerPublicKey() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException {
+        /*
+         * Load the keystore
+         */
+        char[] password = CLIENT_KEYSTORE_PASSWORD.toCharArray();
+        KeyStore keystore = loadKeystore(password);
+        /*
+         * Get the servers trusted certificate.
+         */
+        final Certificate serverCert = keystore
+                .getCertificate(SERVER_CERTIFICATE_ALIAS);
 
-        final var sc = configureCertificate();
+        return serverCert.getPublicKey();
+    }
 
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-        /*// create an all-trusting host name verifier
-        HostnameVerifier allHostsValid = new HostnameVerifier() {
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        };
-
-        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);*/
-
-
-        // *****************************************************
-
+    public String executeSOAPAndHttpsRequestV1() throws Exception {
         /*
          * 1 - criptografar o xml do body limpo:
-         * - encriptar o body com chave efêmera (gerada pela lib wss4j) com AES_256_CBC (example Hekate RedebanRoute: "KeyGenerator keyGen = KeyUtils.getKeyGenerator(WSConstants.AES_256);" )
+         * - encriptar o body com chave efêmera (AES-256) e com o algoritmo AES_256_CBC
          * - extrair a chave pública do certificado da redeban e encriptar a chave efêmera com essa chave pública.
          * */
 
-        // SOAP body clean
-        final var xmlBodyClean = RedebanUtils.getXmlBodyClean();
-
-        // TODO:
         // 1)
         // 1.1) - generate Ephemeral Key;
         final var ephemeralKey = "aesEncryptionKey";
+        final var initVector = "encryptionIntVec"; // TODO: Não é necessário enviar ele tbm ????????????????????
 
         // 1.2) - encrypt SOAP body clean using Ephemeral Key (with AES-256-CBC);
-        final var encryptedSOAPBody = RedebanUtils.encryptSOAPBodyV1(xmlBodyClean, ephemeralKey);
+        // SOAP body clean
+        final var xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag();
+        // final var encryptedSOAPBody = RedebanUtils.encryptSOAPBodyV1(xmlBodyClean, ephemeralKey, initVector);
+        final var encryptedSOAPBody = AESCryptography.encryptV1(xmlBodyClean, ephemeralKey, initVector);
         System.out.println("############ encryptedSOAPBody: ############");
         System.out.println(encryptedSOAPBody);
         System.out.println("########################");
 
         // 1.3) - encrypt Ephemeral Key with Redeban certificate Public Key (with RSA-1_5)
-        final var redebanPublicKeyPath = "redeban-pubkey.pem";
-        final var encryptedEphemeralKey = RedebanUtils.encryptEphemeralKeyV1(ephemeralKey, redebanPublicKeyPath);
+        final var redebanPublicKey = getServerPublicKey();
+        final var encryptedEphemeralKey = RSACryptography.encryptAESKeyWithRSA_V1(ephemeralKey, redebanPublicKey);
+        /*final var redebanPublicKeyPath = "redeban-pubkey.pem";
+        final var encryptedEphemeralKey = RedebanUtils.encryptEphemeralKeyV1(ephemeralKey, redebanPublicKeyPath);*/
         System.out.println("############ encryptedEphemeralKey: ############");
         System.out.println(encryptedEphemeralKey);
         System.out.println("########################");
@@ -198,7 +289,7 @@ public class RedebanService {
         System.out.println("########################");
 
         String xmlOnlyEncryptedBody = RedebanUtils
-                .getXmlEnvelopOnlyCiphedBody(encryptedSOAPBody, encryptedEphemeralKey, ski);
+                .getXmlSOAPEnvelopOnlyCiphedBody(encryptedSOAPBody, encryptedEphemeralKey, ski);
         System.out.println("############ xmlOnlyEncryptedBody: ############");
         System.out.println(xmlOnlyEncryptedBody);
         System.out.println("########################");
@@ -219,14 +310,23 @@ public class RedebanService {
                 encryptedSOAPBody, encryptedEphemeralKey, signature
         );*/
 
-        System.out.println("2222222222222222222222222");
         final var xmlSOAPEnvelop = xmlOnlyEncryptedBody;
         // final var xmlSOAPEnvelop = xmlEnvelopEncryptedAndSignedBody;
 
+        // final var sc = initMutualTlsHandshake();
+        initMutualTlsHandshake();
+        return sendSOAPRequest(xmlSOAPEnvelop);
+
+
+
+
+
+        /*System.out.println("2222222222222222222222222");
+
         // send to the server
-        /**
+        *//**
          * URL to our SOAP UI service
-         */
+         *//*
         final var SOAP_URI = "https://www.txstestrbm.com:9990/CompraElectronica/Compra";
         URL url = new URL(SOAP_URI);
         URLConnection urlConnection = url.openConnection();
@@ -254,7 +354,7 @@ public class RedebanService {
         httpsConn.setDoOutput(true);
         httpsConn.setDoInput(true);
 
-        System.out.println("44444444444AAAAAAAAAAAAAAAAAAA");
+        System.out.println("44444444444---AAAAAAAAAAAAAAAAAAA");
 
         OutputStream out = httpsConn.getOutputStream();
         out.write(buffer);
@@ -281,14 +381,14 @@ public class RedebanService {
 
         System.out.println("777777777777777777777777");
 
-        return outputString;
+        return outputString;*/
     }
 
     /*
      * https://www.youtube.com/watch?v=CzHr3CrDFhU
      * https://softwarepulse.co.uk/blog/java-client-calling-soap-web-service/
      * */
-    private String executeSOAPRequest1() {
+    /*private String executeSOAPRequest1() {
 
         // *************************************************************************
 
@@ -299,13 +399,13 @@ public class RedebanService {
         InputStreamReader isr = null;
         BufferedReader in = null;
 
-        /*
+        *//*
          * 1 - criptografar o xml do body limpo:
          * - encriptar o body com chave efêmera (gerada pela lib wss4j) com AES_256_CBC (example Hekate RedebanRoute: "KeyGenerator keyGen = KeyUtils.getKeyGenerator(WSConstants.AES_256);" )
          * - extrair a chave pública do certificado da redeban e encriptar a chave efêmera com essa chave pública.
-         * */
+         * *//*
 
-        final var xmlBodyClean = RedebanUtils.getXmlBodyClean();
+        final var xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag();
         // TODO:
         // - gerar chave efêmera;
         // - criptografar o body com a chave efêmera;
@@ -313,11 +413,11 @@ public class RedebanService {
 
 
 
-        /*
+        *//*
          * 2 - assinar o body criptografado acima
          * - usar chave privada da liquido com o RSA com SHA-512
          *
-         * */
+         * *//*
 
         // final var xmlEnvelopCiphedAndSignedBody = getXmlEnvelopCiphedAndSignedBody();
 
@@ -460,7 +560,7 @@ public class RedebanService {
 
             return outputString;
 
-            /*
+            *//*
             // Get the response from the web service call
             Document document = parseXmlFile(outputString);
             System.out.println("888888888888888888888888");
@@ -468,14 +568,14 @@ public class RedebanService {
             System.out.println("999999999999999999999999");
             String webServiceResponse = nodeLst.item(0).getTextContent();
             System.out.println("The response from the web service call is : " + webServiceResponse);
-            return webServiceResponse;*/
+            return webServiceResponse;*//*
         } catch (Exception e) {
             e.printStackTrace();
             return "Error!";
         }
-    }
+    }*/
 
-    private Document parseXmlFile(String in) {
+    /*private Document parseXmlFile(String in) {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -488,22 +588,9 @@ public class RedebanService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
 
     public String executeSOAPAndHttpsRequestV2() throws Exception {
-
-        final var sc = configureCertificate();
-
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-        // create an all-trusting host name verifier
-        HostnameVerifier allHostsValid = new HostnameVerifier() {
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        };
-
-        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
         // ****************************************************
         // 1)
@@ -515,40 +602,37 @@ public class RedebanService {
 
         // IvParameterSpec: Um IV (vetor de inicialização) é necessário para o modo CBC do AES.
         // TODO: Não é necessário enviar ele tbm ????????????????????
-
         final var iv = AESCryptography.generateIv();
         System.out.println("############ iv: ############");
         System.out.println(Base64.getEncoder().encodeToString(iv.getIV()));
         System.out.println("########################");
 
-        final var xmlBodyCleanStr = RedebanUtils.getXmlBodyClean();
-
-        // 1.2) - encrypt SOAP body clean using Ephemeral Key (with AES-256-CBC);
-        final var encryptedSOAPBody = AESCryptography.encrypt(xmlBodyCleanStr, ephemeralKey, iv);
+        // 1.2) - encrypt SOAP body content clean using Ephemeral Key (with AES-256-CBC);
+        final var xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag();
+        final var encryptedSOAPBody = AESCryptography.encryptV2(xmlBodyCleanStr, ephemeralKey, iv);
         System.out.println("############ encryptedSOAPBody: ############");
         System.out.println(encryptedSOAPBody);
         System.out.println("########################");
 
         // 1.3) - encrypt Ephemeral Key with Redeban certificate Public Key (with RSA-1_5)
-        final var redebanPublicKeyPath = "redeban-pubkey.pem";
-        final var redebanPublicKey = RSACryptography.loadPublicKeyFromPEM(redebanPublicKeyPath);
-        final var encryptedEphemeralKey = RSACryptography.encryptAESKeyWithRSA(ephemeralKey, redebanPublicKey);
+        final var redebanPublicKey = getServerPublicKey();
+        /*final var redebanPublicKeyPath = "redeban-pubkey.pem";
+        final var redebanPublicKey = RSACryptography.loadPublicKeyFromPEM(redebanPublicKeyPath);*/
+        final var encryptedEphemeralKey = RSACryptography.encryptAESKeyWithRSA_V2(ephemeralKey, redebanPublicKey);
         System.out.println("############ encryptedEphemeralKey: ############");
         System.out.println(encryptedEphemeralKey);
         System.out.println("########################");
 
-
-
         // TODO: generate the KeyIdentifier ************************* redebanPublicKey ?????????????????????????????????
         //
-        final var ski = RSACryptography.generateSKIFromPublicKeyWithSHA1(redebanPublicKey);
-        // final var ski = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
+        // final var ski = RSACryptography.generateSKIFromPublicKeyWithSHA1(redebanPublicKey);
+        final var ski = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
         System.out.println("############ ski: ############");
         System.out.println(ski);
         System.out.println("########################");
 
         String xmlOnlyEncryptedBody = RedebanUtils
-                .getXmlEnvelopOnlyCiphedBody(encryptedSOAPBody, encryptedEphemeralKey, ski);
+                .getXmlSOAPEnvelopOnlyCiphedBody(encryptedSOAPBody, encryptedEphemeralKey, ski);
         System.out.println("############ xmlOnlyEncryptedBody: ############");
         System.out.println(xmlOnlyEncryptedBody);
         System.out.println("########################");
@@ -558,14 +642,25 @@ public class RedebanService {
 
         final var xmlSOAPEnvelop = xmlOnlyEncryptedBody;
         // return sendSOAPRequest(xmlOnlyEncryptedBody);
-        // *********************************************
-        System.out.println("2222222222222222222222222");
-        // final var xmlSOAPEnvelop = xmlEnvelopEncryptedAndSignedBody;
 
+        // TODO: Signature step
+        // *********************************************
+
+
+        // final var sc = initMutualTlsHandshake();
+        initMutualTlsHandshake();
+        return sendSOAPRequest(xmlSOAPEnvelop);
+
+
+
+
+
+
+        /*
         // send to the server
-        /**
+        *//**
          * URL to our SOAP UI service
-         */
+         *//*
         final var SOAP_URI = "https://www.txstestrbm.com:9990/CompraElectronica/Compra";
         URL url = new URL(SOAP_URI);
         URLConnection urlConnection = url.openConnection();
@@ -620,7 +715,7 @@ public class RedebanService {
 
         System.out.println("777777777777777777777777");
 
-        return outputString;
+        return outputString;*/
     }
 
     private String sendSOAPRequest(
@@ -670,7 +765,11 @@ public class RedebanService {
         System.out.println("55555555555555555555555");
 
         // Read the response and write it to standard out.
-        InputStreamReader isr = new InputStreamReader(httpsConn.getInputStream());
+        final var is = httpsConn.getInputStream();
+        System.out.println("55555555555555555555555-AAAAAAAAAAAAAAAAAAAAAAA");
+
+        // InputStreamReader isr = new InputStreamReader(httpsConn.getInputStream());
+        InputStreamReader isr = new InputStreamReader(is);
         BufferedReader in = new BufferedReader(isr);
 
         System.out.println("66666666666666666666666");
@@ -691,13 +790,14 @@ public class RedebanService {
         return outputString;
     }
 
-    public String executeSOAPAndHttpsRequestV3() throws Exception {
+    // WSS4J - 2.0.10 version
+    /*public String executeSOAPAndHttpsRequestV3() throws Exception {
 
         // Load the Crypto properties
         // Configure the certificate ???????
         final var crypto = Wss4jUtils.loadCrypto(
                 CLIENT_KEYSTORE_PASSWORD,
-                SERVER_CERTIFICATE_ALIAS,
+                CLIENT_KEYSTORE_ALIAS,
                 CLIENT_KEYSTORE_PATH);
 
 
@@ -714,9 +814,9 @@ public class RedebanService {
         System.out.println(bodyContent);
         System.out.println("############################");
 
-        /*if (bodyContent == null) {
+        *//*if (bodyContent == null) {
             System.out.println("bodyContent is null!");
-        }*/
+        }*//*
 
         final var soapXmlDocument = buildSoapXmlDocument(bodyContent);
         final var soapXmlDocumentStr = nodeToString(soapXmlDocument);
@@ -728,14 +828,16 @@ public class RedebanService {
 
         // **********************************
         final var newDoc = Wss4jUtils.initWss4jConfiguration(
-                // secHeaderStr,
+                crypto,
+                CLIENT_KEYSTORE_ALIAS,
+                CLIENT_KEYSTORE_PASSWORD,
                 soapXmlDocument,
                 RedebanUtils.USERNAME,
                 RedebanUtils.PASSWORD
         ); // return what?
 
         System.out.println("############# newDoc: ###############");
-        System.out.println(nodeToString(newDoc));
+        System.out.println(newDoc);
         System.out.println("############################");
 
         // 1)
@@ -744,71 +846,29 @@ public class RedebanService {
         final var ephemeralKey = Wss4jUtils.generateAes256Key();
 
         return bodyContent;
-    }
+    }*/
 
     private String extractBodyContent(
             final String basicSOAPEnvelop
     ) throws ParserConfigurationException, IOException, SAXException {
 
-        System.out.println("############## extractBodyContent method ################");
-
-        System.out.println("############## basicSOAPEnvelop: ################");
-        System.out.println(basicSOAPEnvelop);
-        System.out.println("##############################");
-
+        // Loading xml
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         Document document = factory.newDocumentBuilder().parse(
                 new ByteArrayInputStream(basicSOAPEnvelop.getBytes(StandardCharsets.UTF_8)));
 
-        System.out.println("############## document: ################");
-        System.out.println(nodeToString(document));
-        System.out.println("##############################");
-
         // Get body element
         String bodyContent = null;
-        // NodeList bodyList = document.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body"); // *************************
-        // NodeList bodyList = document.getElementsByTagName("Body");
-        // NodeList bodyList = document.getChildNodes();
-
         NodeList bodyList = document.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
-        System.out.println("############## bodyList.getLength(): ################");
-        System.out.println(bodyList.getLength());
-        System.out.println("##############################");
-
-        Node bodyNode = bodyList.item(0);
-        System.out.println("############## bodyNode: ################");
-        System.out.println(nodeToString(bodyNode));
-        System.out.println("##############################");
-
-        /*NodeList bodyChildList = document.getElementsByTagNameNS("http://www.rbm.com.co/esb/comercio/compra/", "ns0:compraProcesarSolicitud");
-        System.out.println("############## bodyChildList.getLength(): ################");
-        System.out.println(bodyChildList.getLength());
-        System.out.println("##############################");*/
-
-
-        /*System.out.println("############## bodyList.item(0): ################");
-        System.out.println(nodeToString(bodyElement));
-        System.out.println("##############################");*/
-
         if (bodyList.getLength() > 0) {
-            System.out.println("1111111111111111111111111");
-            // Element bodyElement = (Element) bodyList.item(0);
+            Element bodyElement = (Element) bodyList.item(0);
 
-            // we can use bodyNode.appendChild();
-
-            NodeList bodyNodeList =bodyNode.getChildNodes();
-
-            System.out.println("############## bodyNodeList.getLength(): ################");
-            System.out.println(bodyNodeList.getLength());
-            System.out.println("##############################");
-
-            // Get body content
-            bodyContent = nodeToString(bodyNode.getFirstChild());
-            // bodyContent = nodeToString(bodyElement.getFirstChild());
-            System.out.println("Extracted Body Content:" + bodyContent);
+            // Get body context
+            bodyContent = nodeToString(bodyElement.getFirstChild());
+            // System.out.println("Extracted Body Content:" + bodyContent);
         } else {
-            System.out.println("***** ERROR - No Body element found.");
+            System.out.println("No Body element found.");
         }
 
         return bodyContent;
@@ -823,7 +883,7 @@ public class RedebanService {
             transformer.transform(new DOMSource(node), new StreamResult(writer));
             return writer.toString();
         } catch (Exception e) {
-            System.out.println(" Redeban convert node to String error: " + e.getMessage());
+            System.out.println("Convert node to String error: " + e.getMessage());
             return null;
         }
     }
@@ -865,5 +925,89 @@ public class RedebanService {
 
     private Document soapMessageToDocument(SOAPMessage soapMessage) throws Exception {
         return soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
+    }
+
+    // WSS4J - 2.4.3 version
+    public String executeWss4jSOAPAndHttpsRequest(
+            final boolean encryptAndSign
+    ) throws Exception {
+
+        // 0) mounting basic SOAP envelop
+
+        // ########## Getting basic CLEAN SOAP Envelop with only Body tag ##########
+        final var basicCleanSOAPEnvelop = RedebanUtils.getBasicSOAPEnvelopBrazilTeam();
+
+        // ########## Extracting CLEAN Body tag (***** only content body) ##########
+        final var bodyContent = extractBodyContent(basicCleanSOAPEnvelop);
+        // final var bodyContent = RedebanUtils.getBasicCleanSOAPEnvelop();
+        // final var bodyContent = RedebanUtils.getCleanBodyContent();
+        System.out.println("\n############# INITIAL Extracted bodyContent: ###############");
+        System.out.println(bodyContent);
+        System.out.println("############################");
+
+        // ########## Resetting SOAP envelop tags ##########
+        final var soapXmlDocument = buildSoapXmlDocument(bodyContent);
+        System.out.println("\n############# BASIC SOAP ENVELOP - with no Header (soapXmlDocument Str): ###############");
+        System.out.println(nodeToString(soapXmlDocument));
+        System.out.println("############################");
+
+
+        // Load the Crypto properties
+        final var crypto = Wss4jUtils.loadCrypto(
+                CLIENT_KEYSTORE_PASSWORD,
+                CLIENT_KEYSTORE_ALIAS,
+                CLIENT_KEYSTORE_PATH);
+
+        // ***************************************************************
+        // TODO: encrypt bodyContent here // encrypt only bodyContent or consider from <soap-env:Body> tag ??????????????????????
+        // 1)
+        // 1.1) - generate Ephemeral Key;
+        // Wss4jUtils.generateEphemeralKey();
+        // final var ephemeralKey = Wss4jUtils.generateAes256Key();
+
+        // final var secHeaderStr = "<wsse:Security soap-env:mustUnderstand=\"1\"></wsse:Security>";
+
+        String finalSOAPStr = null;
+        if (!encryptAndSign) {
+            finalSOAPStr = Wss4jUtils.runWss4jEncryption(
+                    crypto,
+                    CLIENT_KEYSTORE_ALIAS,
+                    CLIENT_KEYSTORE_PASSWORD,
+                    soapXmlDocument,
+                    RedebanUtils.USERNAME,
+                    RedebanUtils.PASSWORD
+            );
+            System.out.println("\n############# ENCRYPTED SOAP ENVELOP: ###############");
+        } else {
+            finalSOAPStr = Wss4jUtils.runWss4jEncryptionAndSignature(
+                    crypto,
+                    CLIENT_KEYSTORE_ALIAS,
+                    CLIENT_KEYSTORE_PASSWORD,
+                    soapXmlDocument,
+                    RedebanUtils.USERNAME,
+                    RedebanUtils.PASSWORD
+            );
+            System.out.println("\n############# ENCRYPTED AND SIGNED SOAP ENVELOP: ###############");
+        }
+
+
+        // System.out.println("\n############# FINAL SOAP ENVELOP to send to Redeban: ###############");
+        System.out.println(finalSOAPStr);
+        System.out.println("############################");
+
+        // final var sc = initMutualTlsHandshake();
+        initMutualTlsHandshake();
+
+        /*HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // create an all-trusting host name verifier
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);*/
+
+        return sendSOAPRequest(finalSOAPStr);
     }
 }

@@ -53,28 +53,29 @@ public class MvpController {
 
     @GetMapping("/mvp/v1/redeban")
     public String redebanV1() {
+        /*
+        * - Usa uma chave efêmera estático;
+        * - Usa um vetor de inicialização estático;
+        * - Criptografa o body incluindo a tag <soap-env: Body>;
+        * - Usa o ski estático = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
+        * - Envia o xml somente cifrado.
+        * */
         try {
             return redebanService.executeSOAPAndHttpsRequestV1();
-        } catch (UnrecoverableKeyException e) {
-            throw new RuntimeException(e);
-        } catch (CertificateException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (KeyStoreException e) {
-            throw new RuntimeException(e);
-        } catch (KeyManagementException e) {
-            throw new RuntimeException(e);
-        } catch (SOAPException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        // return "Redeban Test!";
     }
 
     @GetMapping("/mvp/v2/redeban")
     public String redebanV2() {
+        /*
+         * - Usa uma chave efêmera gerada dinamicamente;
+         * - Usa um vetor de inicialização gerado dinamicamente;
+         * - Criptografa o body não incluindo a tag <soap-env: Body> (somente o conteúdo dentro do body);
+         * - Usa o ski estático = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
+         * - Envia o xml somente cifrado.
+         * */
         try {
             return redebanService.executeSOAPAndHttpsRequestV2();
         } catch (Exception e) {
@@ -82,10 +83,44 @@ public class MvpController {
         }
     }
 
-    @GetMapping("/mvp/v3/redeban")
+    /*@GetMapping("/mvp/v3/redeban")
     public String redebanV3() {
         try {
             return redebanService.executeSOAPAndHttpsRequestV3();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }*/
+
+    @GetMapping("/mvp/v3/redeban")
+    public String redebanV3() {
+        /*
+         * - Usa a lib wss4j-2.4.3 (mesmo código criado pelo time da China para cifrar e assinar a mensagem SOAP);
+         *
+         * - Usa uma chave efêmera gerada dinamicamente (o iv deve ser gerenciado pela própria lib wss4j);
+         * - Criptografa o body não incluindo a tag <soap-env: Body> (somente o conteúdo dentro do body);
+         * - Usa uma constante para definir o ski, mas no final o resultado é = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
+         * - Envia o xml somente cifrado.
+         * */
+        try {
+            return redebanService.executeWss4jSOAPAndHttpsRequest(false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/mvp/v4/redeban")
+    public String redebanV4() {
+        /*
+         * - Usa a lib wss4j-2.4.3 (mesmo código criado pelo time da China para cifrar e assinar a mensagem SOAP);
+         *
+         * - Usa uma chave efêmera gerada dinamicamente (o iv deve ser gerenciado pela própria lib wss4j);
+         * - Criptografa o body não incluindo a tag <soap-env: Body> (somente o conteúdo dentro do body);
+         * - Usa uma constante para definir o ski, mas no final o resultado é = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
+         * - Envia o xml somente cifrado.
+         * */
+        try {
+            return redebanService.executeWss4jSOAPAndHttpsRequest(true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
