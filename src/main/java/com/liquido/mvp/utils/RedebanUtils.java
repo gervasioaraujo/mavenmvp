@@ -73,11 +73,14 @@ public class RedebanUtils {
     private static final String CARD_EXPIRATION_DATE = "2025-12-31";
     private static final String CARD_CVC = "124";
 
-    private static final String CLEAN_CONTENT_TAG_BODY = "<ns0:compraProcesarSolicitud xmlns:ns0=\"http://www.rbm.com.co/esb/comercio/compra/\"><ns0:cabeceraSolicitud><ns0:infoPuntoInteraccion><ns1:tipoTerminal xmlns:ns1=\"http://www.rbm.com.co/esb/comercio/\">WEB</ns1:tipoTerminal><ns2:idTerminal xmlns:ns2=\"http://www.rbm.com.co/esb/comercio/\">SRB00085</ns2:idTerminal><ns3:idAdquiriente xmlns:ns3=\"http://www.rbm.com.co/esb/comercio/\">10203040</ns3:idAdquiriente><ns4:idTransaccionTerminal xmlns:ns4=\"http://www.rbm.com.co/esb/comercio/\">100001</ns4:idTransaccionTerminal><ns5:modoCapturaPAN xmlns:ns5=\"http://www.rbm.com.co/esb/comercio/\">Manual</ns5:modoCapturaPAN><ns6:capacidadPIN xmlns:ns6=\"http://www.rbm.com.co/esb/comercio/\">Virtual</ns6:capacidadPIN></ns0:infoPuntoInteraccion></ns0:cabeceraSolicitud><ns0:infoMedioPago><ns0:idTarjetaCredito><ns7:franquicia xmlns:ns7=\"http://www.rbm.com.co/esb/\">VISA</ns7:franquicia><ns8:numTarjeta xmlns:ns8=\"http://www.rbm.com.co/esb/\">4005990000001247</ns8:numTarjeta><ns9:fechaExpiracion xmlns:ns9=\"http://www.rbm.com.co/esb/\">2025-12-31</ns9:fechaExpiracion><ns10:codVerificacion xmlns:ns10=\"http://www.rbm.com.co/esb/\">124</ns10:codVerificacion></ns0:idTarjetaCredito></ns0:infoMedioPago><ns0:infoCompra><ns0:montoTotal>5000</ns0:montoTotal><ns0:referencia>CPNJDQMEW4LV</ns0:referencia><ns0:cantidadCuotas>2</ns0:cantidadCuotas><ns0:infoFacilitador><ns12:marcTerminal xmlns:ns12=\"http://www.rbm.com.co/esb/\">BOLD*Stg Juan</ns12:marcTerminal><ns13:FacilitadorID xmlns:ns13=\"http://www.rbm.com.co/esb/\">260278</ns13:FacilitadorID><ns14:SubMerchID xmlns:ns14=\"http://www.rbm.com.co/esb/\">NDH86D9U04</ns14:SubMerchID></ns0:infoFacilitador></ns0:infoCompra></ns0:compraProcesarSolicitud>";
+    private static final String CLEAN_CONTENT_TAG_BODY_0 = "<com:compraProcesarSolicitud><com:cabeceraSolicitud><com:infoPuntoInteraccion><com1:tipoTerminal>WEB</com1:tipoTerminal><com1:idTerminal>SRB00085</com1:idTerminal><com1:idAdquiriente>10203040</com1:idAdquiriente><com1:idTransaccionTerminal>100001</com1:idTransaccionTerminal><com1:modoCapturaPAN>Manual</com1:modoCapturaPAN><com1:capacidadPIN>Virtual</com1:capacidadPIN></com:infoPuntoInteraccion></com:cabeceraSolicitud><com:idPersona><com1:tipoDocumento>CC</com1:tipoDocumento><com1:numDocumento>1000000001</com1:numDocumento></com:idPersona><com:infoMedioPago><com:idTarjetaCredito><esb:franquicia>VISA</esb:franquicia><esb:numTarjeta>4005990000001247</esb:numTarjeta><esb:fechaExpiracion>2025-12-31</esb:fechaExpiracion><esb:codVerificacion>124</esb:codVerificacion></com:idTarjetaCredito></com:infoMedioPago><com:infoCompra><com:montoTotal>6</com:montoTotal><com:infoImpuestos><com1:tipoImpuesto>IVA</com1:tipoImpuesto><com1:monto>1</com1:monto></com:infoImpuestos><com:cantidadCuotas>1</com:cantidadCuotas></com:infoCompra><com:infoPersona><com1:direccion>CALLE 20</com1:direccion><com1:ciudad>BOGOTA</com1:ciudad><com1:departamento>CU</com1:departamento><com1:emailComercio>correo@ejemplo.com</com1:emailComercio><com1:telefonoFijo>8607050</com1:telefonoFijo><com1:celular>30010203040</com1:celular></com:infoPersona></com:compraProcesarSolicitud>";
+    private static final String CLEAN_CONTENT_TAG_BODY_1 = "<ns0:compraProcesarSolicitud xmlns:ns0=\"http://www.rbm.com.co/esb/comercio/compra/\"><ns0:cabeceraSolicitud><ns0:infoPuntoInteraccion><ns1:tipoTerminal xmlns:ns1=\"http://www.rbm.com.co/esb/comercio/\">WEB</ns1:tipoTerminal><ns2:idTerminal xmlns:ns2=\"http://www.rbm.com.co/esb/comercio/\">SRB00085</ns2:idTerminal><ns3:idAdquiriente xmlns:ns3=\"http://www.rbm.com.co/esb/comercio/\">10203040</ns3:idAdquiriente><ns4:idTransaccionTerminal xmlns:ns4=\"http://www.rbm.com.co/esb/comercio/\">100001</ns4:idTransaccionTerminal><ns5:modoCapturaPAN xmlns:ns5=\"http://www.rbm.com.co/esb/comercio/\">Manual</ns5:modoCapturaPAN><ns6:capacidadPIN xmlns:ns6=\"http://www.rbm.com.co/esb/comercio/\">Virtual</ns6:capacidadPIN></ns0:infoPuntoInteraccion></ns0:cabeceraSolicitud><ns0:infoMedioPago><ns0:idTarjetaCredito><ns7:franquicia xmlns:ns7=\"http://www.rbm.com.co/esb/\">VISA</ns7:franquicia><ns8:numTarjeta xmlns:ns8=\"http://www.rbm.com.co/esb/\">4005990000001247</ns8:numTarjeta><ns9:fechaExpiracion xmlns:ns9=\"http://www.rbm.com.co/esb/\">2025-12-31</ns9:fechaExpiracion><ns10:codVerificacion xmlns:ns10=\"http://www.rbm.com.co/esb/\">124</ns10:codVerificacion></ns0:idTarjetaCredito></ns0:infoMedioPago><ns0:infoCompra><ns0:montoTotal>5000</ns0:montoTotal><ns0:referencia>CPNJDQMEW4LV</ns0:referencia><ns0:cantidadCuotas>2</ns0:cantidadCuotas><ns0:infoFacilitador><ns12:marcTerminal xmlns:ns12=\"http://www.rbm.com.co/esb/\">BOLD*Stg Juan</ns12:marcTerminal><ns13:FacilitadorID xmlns:ns13=\"http://www.rbm.com.co/esb/\">260278</ns13:FacilitadorID><ns14:SubMerchID xmlns:ns14=\"http://www.rbm.com.co/esb/\">NDH86D9U04</ns14:SubMerchID></ns0:infoFacilitador></ns0:infoCompra></ns0:compraProcesarSolicitud>";
 
 
-    public static String getXmlSOAPEnvelopClean() {
-        return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:com=\"http://www.rbm.com.co/esb/comercio/compra/\" xmlns:com1=\"http://www.rbm.com.co/esb/comercio/\" xmlns:esb=\"http://www.rbm.com.co/esb/\"><soapenv:Header><wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\"><wsse:UsernameToken><wsse:Username>TestLiquido</wsse:Username><wsse:Password>Liquido.2023</wsse:Password></wsse:UsernameToken></wsse:Security></soapenv:Header><soapenv:Body><com:compraProcesarSolicitud><com:cabeceraSolicitud><com:infoPuntoInteraccion><com1:tipoTerminal>WEB</com1:tipoTerminal><com1:idTerminal>SRB00085</com1:idTerminal><com1:idAdquiriente>10203040</com1:idAdquiriente><com1:idTransaccionTerminal>100001</com1:idTransaccionTerminal><com1:modoCapturaPAN>Manual</com1:modoCapturaPAN><com1:capacidadPIN>Virtual</com1:capacidadPIN></com:infoPuntoInteraccion></com:cabeceraSolicitud><com:idPersona><com1:tipoDocumento>CC</com1:tipoDocumento><com1:numDocumento>1000000001</com1:numDocumento></com:idPersona><com:infoMedioPago><com:idTarjetaCredito><esb:franquicia>VISA</esb:franquicia><esb:numTarjeta>4005990000001247</esb:numTarjeta><esb:fechaExpiracion>2025-12-31</esb:fechaExpiracion><esb:codVerificacion>124</esb:codVerificacion></com:idTarjetaCredito></com:infoMedioPago><com:infoCompra><com:montoTotal>6</com:montoTotal><com:infoImpuestos><com1:tipoImpuesto>IVA</com1:tipoImpuesto><com1:monto>1</com1:monto></com:infoImpuestos><com:cantidadCuotas>1</com:cantidadCuotas></com:infoCompra><com:infoPersona><com1:direccion>CALLE 20</com1:direccion><com1:ciudad>BOGOTA</com1:ciudad><com1:departamento>CU</com1:departamento><com1:emailComercio>correo@ejemplo.com</com1:emailComercio><com1:telefonoFijo>8607050</com1:telefonoFijo><com1:celular>30010203040</com1:celular></com:infoPersona></com:compraProcesarSolicitud></soapenv:Body></soapenv:Envelope>";
+    // ******** With "soapenv:" prefix
+    public static String getCleanXmlSOAPEnvelop_0() {
+        return String.format("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:com=\"http://www.rbm.com.co/esb/comercio/compra/\" xmlns:com1=\"http://www.rbm.com.co/esb/comercio/\" xmlns:esb=\"http://www.rbm.com.co/esb/\"><soapenv:Header><wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\"><wsse:UsernameToken><wsse:Username>TestLiquido</wsse:Username><wsse:Password>Liquido.2023</wsse:Password></wsse:UsernameToken></wsse:Security></soapenv:Header><soapenv:Body>%s</soapenv:Body></soapenv:Envelope>",
+                CLEAN_CONTENT_TAG_BODY_0);
     }
 
     /*public static String getXmlSOAPEnvelopClean() {
@@ -87,66 +90,20 @@ public class RedebanUtils {
         );
     }*/
 
+    // ******** With "soap-env:" prefix
+    // Used by route V1
     public static String getXmlBodyCleanIncludingBodyTag() {
-        return String.format("<soap-env:Body>%s</soap-env:Body>", CLEAN_CONTENT_TAG_BODY);
+        return String.format("<soap-env:Body>%s</soap-env:Body>", CLEAN_CONTENT_TAG_BODY_1);
     }
 
+    // ******** With "soap-env:" prefix
+    // Used by route V2
     public static String getXmlBodyCleanExcludingBodyTag() {
-        return CLEAN_CONTENT_TAG_BODY;
+        return CLEAN_CONTENT_TAG_BODY_1;
     }
 
-    public static String getXmlEnvelopOnlyCiphedBody(
-            final String cipherBodyValue,
-            final String cipherEphemeralKeyValue,
-            final String ski
-    ) {
-        /*
-        * <dsig:KeyInfo xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
-					<wsse:SecurityTokenReference>
-						<wsse:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">MEm79zLpk2XK2hXT3uPyx6VB0Og=</wsse:KeyIdentifier>
-					</wsse:SecurityTokenReference>
-				</dsig:KeyInfo>
-        * TODO: KeyIdentifier ????????????????
-        * */
-        return String.format("\"<soap-env:Envelope xmlns:wsse=\\\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\\\" xmlns:soap-env=\\\"http://schemas.xmlsoap.org/soap/envelope/\\\">\\n\" +\n" +
-                        "                \"\\t<soap-env:Header>\\n\" +\n" +
-                        "                \"\\t\\t<wsse:Security soap-env:mustUnderstand=\\\"1\\\">\\n\" +\n" +
-                        "                \"\\t\\t\\t<xenc:EncryptedKey xmlns:xenc=\\\"http://www.w3.org/2001/04/xmlenc#\\\">\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t<xenc:EncryptionMethod xmlns:dsig=\\\"http://www.w3.org/2000/09/xmldsig#\\\" Algorithm=\\\"http://www.w3.org/2001/04/xmlenc#rsa-1_5\\\"/>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t<dsig:KeyInfo xmlns:dsig=\\\"http://www.w3.org/2000/09/xmldsig#\\\">\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t\\t<wsse:SecurityTokenReference>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t\\t\\t<wsse:KeyIdentifier ValueType=\\\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier\\\" EncodingType=\\\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\\\">%s</wsse:KeyIdentifier>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t\\t</wsse:SecurityTokenReference>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t</dsig:KeyInfo>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t<xenc:CipherData xmlns:dsig=\\\"http://www.w3.org/2000/09/xmldsig#\\\">\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t\\t<xenc:CipherValue>%s</xenc:CipherValue>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t</xenc:CipherData>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t<xenc:ReferenceList>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t\\t<xenc:DataReference URI=\\\"#body\\\"/>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t</xenc:ReferenceList>\\n\" +\n" +
-                        "                \"\\t\\t\\t</xenc:EncryptedKey>\\n\" +\n" +
-                        "                \"\\t\\t\\t<wsse:UsernameToken>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t<wsse:Username>%s</wsse:Username>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t<wsse:Password>%s</wsse:Password>\\n\" +\n" +
-                        "                \"\\t\\t\\t</wsse:UsernameToken>\\n\" +\n" +
-                        "                \"\\t\\t</wsse:Security>\\n\" +\n" +
-                        "                \"\\t</soap-env:Header>\\n\" +\n" +
-                        "                \"\\t<soap-env:Body xmlns:ns15=\\\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\\\" ns15:Id=\\\"id-4f5036d7-4c08-45ab-a484-7ce5411d097e\\\">\\n\" +\n" +
-                        "                \"\\t\\t<xenc:EncryptedData xmlns:xenc=\\\"http://www.w3.org/2001/04/xmlenc#\\\" Id=\\\"body\\\" Type=\\\"http://www.w3.org/2001/04/xmlenc#Content\\\">\\n\" +\n" +
-                        "                \"\\t\\t\\t<xenc:EncryptionMethod Algorithm=\\\"http://www.w3.org/2001/04/xmlenc#aes256-cbc\\\"/>\\n\" +\n" +
-                        "                \"\\t\\t\\t<xenc:CipherData>\\n\" +\n" +
-                        "                \"\\t\\t\\t\\t<xenc:CipherValue>%s</xenc:CipherValue>\\n\" +\n" +
-                        "                \"\\t\\t\\t</xenc:CipherData>\\n\" +\n" +
-                        "                \"\\t\\t</xenc:EncryptedData>\\n\" +\n" +
-                        "                \"\\t</soap-env:Body>\\n\" +\n" +
-                        "                \"</soap-env:Envelope>\"",
-                ski,
-                cipherEphemeralKeyValue,
-                USERNAME,
-                PASSWORD,
-                cipherBodyValue);
-    }
-
+    // ******** With "soap-env:" prefix
+    // Used by routes V1 and V2
     public static String getXmlSOAPEnvelopOnlyCiphedBody(
             final String cipherBodyValue,
             final String cipherEphemeralKeyValue,
@@ -160,302 +117,42 @@ public class RedebanUtils {
                 cipherBodyValue);
     }
 
-    private String getXmlEnvelopCiphedAndSignedBody(
-            final String cipherBodyValue,
-            final String cipherEphemeralKeyValue,
-            final String signature
-    ) {
-        return String.format("<soap-env:Envelope xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:soap-env=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-                        "\t<soap-env:Header>\n" +
-                        "\t\t<wsse:Security soap-env:mustUnderstand=\"1\">\n" +
-                        "\t\t\t<xenc:EncryptedKey xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\">\n" +
-                        "\t\t\t\t<xenc:EncryptionMethod xmlns:dsig=\"http://www.w3.org/2000/09/xmldsig#\" Algorithm=\"http://www.w3.org/2001/04/xmlenc#rsa-1_5\"/>\n" +
-                        "\t\t\t\t<dsig:KeyInfo xmlns:dsig=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
-                        "\t\t\t\t\t<wsse:SecurityTokenReference>\n" +
-                        "\t\t\t\t\t\t<wsse:KeyIdentifier ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier\" EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\">MEm79zLpk2XK2hXT3uPyx6VB0Og=</wsse:KeyIdentifier>\n" +
-                        "\t\t\t\t\t</wsse:SecurityTokenReference>\n" +
-                        "\t\t\t\t</dsig:KeyInfo>\n" +
-                        "\t\t\t\t<xenc:CipherData xmlns:dsig=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
-                        "\t\t\t\t\t<xenc:CipherValue>%s</xenc:CipherValue>\n" +
-                        "\t\t\t\t</xenc:CipherData>\n" +
-                        "\t\t\t\t<xenc:ReferenceList>\n" +
-                        "\t\t\t\t\t<xenc:DataReference URI=\"#body\"/>\n" +
-                        "\t\t\t\t</xenc:ReferenceList>\n" +
-                        "\t\t\t</xenc:EncryptedKey>\n" +
-                        "\t\t\t<wsse:UsernameToken>\n" +
-                        "\t\t\t\t<wsse:Username>%s</wsse:Username>\n" +
-                        "\t\t\t\t<wsse:Password>%s</wsse:Password>\n" +
-                        "\t\t\t</wsse:UsernameToken>\n" +
-                        "\t\t\t<wsu:Timestamp xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" wsu:Id=\"Timestamp-0d55fa6a-7603-4689-b8f5-4ff55b91a725\">\n" +
-                        "\t\t\t\t<wsu:Created>2024-03-21T13:51:38Z</wsu:Created>\n" +
-                        "\t\t\t\t<wsu:Expires>2024-03-21T13:56:38Z</wsu:Expires>\n" +
-                        "\t\t\t</wsu:Timestamp>\n" +
-                        "\t\t\t<Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
-                        "\t\t\t\t<SignedInfo>\n" +
-                        "\t\t\t\t\t<CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#WithComments\"/>\n" +
-                        "\t\t\t\t\t<SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#rsa-sha512\"/>\n" +
-                        "\t\t\t\t\t<Reference URI=\"#Timestamp-0d55fa6a-7603-4689-b8f5-4ff55b91a725\">\n" +
-                        "\t\t\t\t\t\t<Transforms>\n" +
-                        "\t\t\t\t\t\t\t<Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#WithComments\"/>\n" +
-                        "\t\t\t\t\t\t</Transforms>\n" +
-                        "\t\t\t\t\t\t<DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha512\"/>\n" +
-                        "\t\t\t\t\t\t<DigestValue>Qxrs556EEALebb6AE39cUonkMgoGkOvCEFpRI2kDPKlefJnVY7cjQsw604PAoT00IDbK3tLKimeJ4NmCHHOQFA==</DigestValue>\n" +
-                        "\t\t\t\t\t</Reference>\n" +
-                        "\t\t\t\t\t<Reference URI=\"#id-4f5036d7-4c08-45ab-a484-7ce5411d097e\">\n" +
-                        "\t\t\t\t\t\t<Transforms>\n" +
-                        "\t\t\t\t\t\t\t<Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#WithComments\"/>\n" +
-                        "\t\t\t\t\t\t</Transforms>\n" +
-                        "\t\t\t\t\t\t<DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha512\"/>\n" +
-                        "\t\t\t\t\t\t<DigestValue>uDDn7WZPTbUnOMfY69AKri7mcZk4jS1nDuzSmqeETnhtK9gBMdIEEAtoii920i7lMXoKqqRfmX35u0VoUMi9HA==</DigestValue>\n" +
-                        "\t\t\t\t\t</Reference>\n" +
-                        "\t\t\t\t</SignedInfo>\n" +
-                        "\t\t\t\t<SignatureValue>%s</SignatureValue>\n" +
-                        "\t\t\t\t<KeyInfo>\n" +
-                        "\t\t\t\t\t<wsse:SecurityTokenReference xmlns=\"\">\n" +
-                        "\t\t\t\t\t\t<wsse:KeyIdentifier ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier\" EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\">HZIYNnGSs1YQkdlYPdmf/V4DZO0=</wsse:KeyIdentifier>\n" +
-                        "\t\t\t\t\t</wsse:SecurityTokenReference>\n" +
-                        "\t\t\t\t</KeyInfo>\n" +
-                        "\t\t\t</Signature>\n" +
-                        "\t\t</wsse:Security>\n" +
-                        "\t</soap-env:Header>\n" +
-                        "\t<soap-env:Body xmlns:ns15=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" ns15:Id=\"id-4f5036d7-4c08-45ab-a484-7ce5411d097e\">\n" +
-                        "\t\t<xenc:EncryptedData xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" Id=\"body\" Type=\"http://www.w3.org/2001/04/xmlenc#Content\">\n" +
-                        "\t\t\t<xenc:EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#aes256-cbc\"/>\n" +
-                        "\t\t\t<xenc:CipherData>\n" +
-                        "\t\t\t\t<xenc:CipherValue>%s</xenc:CipherValue>\n" +
-                        "\t\t\t</xenc:CipherData>\n" +
-                        "\t\t</xenc:EncryptedData>\n" +
-                        "\t</soap-env:Body>\n" +
-                        "</soap-env:Envelope>",
-                cipherEphemeralKeyValue,
-                USERNAME,
-                PASSWORD,
-                signature,
-                cipherBodyValue);
-    }
-
-    /*public static String encryptSOAPBodyV1(String bodyClean, String ephemeralKey, String initVector) {
-        try {
-            SecretKeySpec skeySpec = new SecretKeySpec(ephemeralKey.getBytes("UTF-8"), "AES");
-            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
-
-            // "RSA-OAEP-MGF1 with AES-256-CBC" or 3DES-CBC with RSA-1_5 (RSA PKCS #1 v1.5)
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING"); // xml -> EncryptionMethod = aes256-cbc
-            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
-
-            byte[] encrypted = cipher.doFinal(bodyClean.getBytes());
-
-            return Base64.encodeBase64String(encrypted);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }*/
-
-    /*public static String encryptEphemeralKeyV1(String ephemeralKey, String publicKeyPath) {
-        FileInputStream is = null;
-
-        try {
-            is = new FileInputStream(new File(publicKeyPath));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            String publicKeyContent = new String(is.readAllBytes());
-
-            publicKeyContent = publicKeyContent.replaceAll("\\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "");
-
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(java.util.Base64.getDecoder().decode(publicKeyContent));
-            RSAPublicKey publicKey = (RSAPublicKey) kf.generatePublic(keySpecX509);
-
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding"); // EncryptionMethod = rsa-1_5
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-
-            byte[] encrypted = cipher.doFinal(ephemeralKey.getBytes());
-            return Base64.encodeBase64String(encrypted);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }*/
-
-    public static String signSOAPBodyV1(String ecryptedSOAPBody, String privateKeyPath) {
-        File file = null;
-        FileInputStream is = null;
-
-        try {
-            file = new File(privateKeyPath);
-            is = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-        /*final byte[] privKeyBytes;
-        try {
-            privKeyBytes = is.readAllBytes();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }*/
-
-        String privateKeyContent = null;
-        try {
-            privateKeyContent = new String(is.readAllBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        privateKeyContent = privateKeyContent.replaceAll("\\n", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
-
-        return generateSHA512Signature(ecryptedSOAPBody, privateKeyContent);
-        // generateSHA256Hash(privateKeyContent);
-
-        /*Signature privateSignature = null;
-        try {
-            privateSignature = Signature.getInstance("SHA512withRSA");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-
-        KeyFactory kf = null;
-        try {
-            kf = KeyFactory.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }*/
-
-        // PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(java.util.Base64.getDecoder().decode(privateKeyContent));
-        // PrivateKey privKey = kf.generatePrivate(keySpecPKCS8);
-
-        // X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(java.util.Base64.getDecoder().decode(privateKeyContent));
-
-        /*byte[] privKeyBytes = new byte[(int) file.length()];
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(java.util.Base64.getDecoder().decode(privateKeyContent)); */
-
-        /*DataInputStream dis = new DataInputStream(is);
-
-        byte[] keyBytes = new byte[(int) file.length()];
-        try {
-            dis.readFully(keyBytes);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            dis.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-
-        RSAPrivateKey privateKey = null;
-        try {
-            privateKey = (RSAPrivateKey) kf.generatePrivate(spec);
-        } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            privateSignature.initSign(privateKey);
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            privateSignature.update(ecryptedSOAPBody.getBytes(StandardCharsets.UTF_8));
-        } catch (SignatureException e) {
-            throw new RuntimeException(e);
-        }
-
-        byte[] signature = null;
-        try {
-            signature = privateSignature.sign();
-        } catch (SignatureException e) {
-            throw new RuntimeException(e);
-        }
-
-        return bytesToHex(signature);*/
-    }
-
-    private static String generateSHA512Signature(final String input, final String key) {
-        String result = "";
-
-        try {
-            final String HMAC_SHA512 = "HmacSHA512";
-            final byte[] byteKey = key.getBytes(StandardCharsets.UTF_8);
-            Mac sha512Hmac = Mac.getInstance(HMAC_SHA512);
-            SecretKeySpec keySpec = new SecretKeySpec(byteKey, HMAC_SHA512);
-            sha512Hmac.init(keySpec);
-            byte[] macData = sha512Hmac.doFinal(input.getBytes(StandardCharsets.UTF_8));
-
-            // Can either base64 encode or put it right into hex
-            result = java.util.Base64.getEncoder().encodeToString(macData);
-            // result = bytesToHex(macData);
-        } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } finally {
-            // Put any cleanup here
-            System.out.println("Done");
-            return result;
-        }
-    }
-
-    /*private String generateSHA256Hash(String input) {
-        try {
-            // Create a MessageDigest instance for SHA-512
-            MessageDigest digest = MessageDigest.getInstance("SHA-512"); // SHA512withRSA
-
-            // Perform the hash computation
-            byte[] encodedhash = digest.digest(input.getBytes());
-
-            // Convert byte array into a hexadecimal string
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : encodedhash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
-
-    /*private static String bytesToHex(byte[] encodedhash) {
-        // Convert byte array into a hexadecimal string
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : encodedhash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }*/
-
-    /*private static String bytesToHex(byte[] bytes) {
-        final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars);
-    }*/
-
+    // Used by routes V3 and V4
     public static String getBasicSOAPEnvelopBrazilTeam() {
         return String.format("<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\"><Body xmlns:wstxns1=\"http://schemas.xmlsoap.org/soap/envelope/\" wstxns1:type=\"purchase\">%s</Body></Envelope>",
-                CLEAN_CONTENT_TAG_BODY);
+                CLEAN_CONTENT_TAG_BODY_1);
     }
 
     /*// China team
     public static String getBasicSOAPEnvelopChinaTeam() {
         return "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\"><Body xmlns:wstxns1=\"http://schemas.xmlsoap.org/soap/envelope/\" wstxns1:type=\"purchase\"><wstxns2:compraProcesarSolicitud xmlns:wstxns2=\"http://www.rbm.com.co/esb/comercio/compra/\"><wstxns2:cabeceraSolicitud><wstxns2:infoPuntoInteraccion><wstxns3:tipoTerminal xmlns:wstxns3=\"http://www.rbm.com.co/esb/comercio/\">WEB</wstxns3:tipoTerminal><wstxns4:idTerminal xmlns:wstxns4=\"http://www.rbm.com.co/esb/comercio/\">SRB00085</wstxns4:idTerminal><wstxns5:idAdquiriente xmlns:wstxns5=\"http://www.rbm.com.co/esb/comercio/\">10203040</wstxns5:idAdquiriente><wstxns6:idTransaccionTerminal xmlns:wstxns6=\"http://www.rbm.com.co/esb/comercio/\">100001</wstxns6:idTransaccionTerminal><wstxns7:modoCapturaPAN xmlns:wstxns7=\"http://www.rbm.com.co/esb/comercio/\">Manual</wstxns7:modoCapturaPAN><wstxns8:capacidadPIN xmlns:wstxns8=\"http://www.rbm.com.co/esb/comercio/\">Virtual</wstxns8:capacidadPIN></wstxns2:infoPuntoInteraccion></wstxns2:cabeceraSolicitud><wstxns2:idPersona><wstxns9:tipoDocumento xmlns:wstxns9=\"http://www.rbm.com.co/esb/comercio/\">CC</wstxns9:tipoDocumento><wstxns10:numDocumento xmlns:wstxns10=\"http://www.rbm.com.co/esb/comercio/\">1081408954</wstxns10:numDocumento></wstxns2:idPersona><wstxns2:infoMedioPago><wstxns2:idTarjetaCredito><wstxns11:franquicia xmlns:wstxns11=\"http://www.rbm.com.co/esb/\">VISA</wstxns11:franquicia><wstxns12:numTarjeta xmlns:wstxns12=\"http://www.rbm.com.co/esb/\">4005990000001247</wstxns12:numTarjeta><wstxns13:fechaExpiracion xmlns:wstxns13=\"http://www.rbm.com.co/esb/\">2025-12-31</wstxns13:fechaExpiracion><wstxns14:codVerificacion xmlns:wstxns14=\"http://www.rbm.com.co/esb/\">124</wstxns14:codVerificacion></wstxns2:idTarjetaCredito></wstxns2:infoMedioPago><wstxns2:infoCompra><wstxns2:montoTotal>10000.00</wstxns2:montoTotal><wstxns2:infoImpuestos><wstxns15:tipoImpuesto xmlns:wstxns15=\"http://www.rbm.com.co/esb/comercio/\">IVA</wstxns15:tipoImpuesto><wstxns16:monto xmlns:wstxns16=\"http://www.rbm.com.co/esb/comercio/\">0.00</wstxns16:monto></wstxns2:infoImpuestos><wstxns2:cantidadCuotas>1</wstxns2:cantidadCuotas><wstxns2:referencia>2b055320e4b542d2b990891bf</wstxns2:referencia></wstxns2:infoCompra></wstxns2:compraProcesarSolicitud></Body></Envelope>";
     }*/
+
+    // ******** With "soapenv:" prefix
+    // Used by route V5
+    public static String getXmlBodyCleanIncludingBodyTag_V5() {
+        return String.format("<soapenv:Body>%s</soapenv:Body>", CLEAN_CONTENT_TAG_BODY_0);
+    }
+
+    // ******** With "soapenv:" prefix
+    // Used by route V6
+    public static String getXmlBodyCleanExcludingBodyTag_V6() {
+        return CLEAN_CONTENT_TAG_BODY_0;
+    }
+
+    // ******** With "soapenv:" prefix
+    // Used by routes V5 and V6
+    public static String getXmlSOAPEnvelopOnlyCiphedBody_V5_V6(
+            final String cipherBodyValue,
+            final String cipherEphemeralKeyValue,
+            final String ski
+    ) {
+        return String.format("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:com=\"http://www.rbm.com.co/esb/comercio/compra/\" xmlns:com1=\"http://www.rbm.com.co/esb/comercio/\" xmlns:esb=\"http://www.rbm.com.co/esb/\"><soapenv:Header><wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" soapenv:mustUnderstand=\"1\"><xenc:EncryptedKey xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" Id=\"EK-52c73e2b-e722-434b-bd23-d0a99191e99f\"><xenc:EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#rsa-1_5\"/><ds:KeyInfo xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"><wsse:SecurityTokenReference><wsse:KeyIdentifier EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier\">%s</wsse:KeyIdentifier></wsse:SecurityTokenReference></ds:KeyInfo><xenc:CipherData><xenc:CipherValue>%s</xenc:CipherValue></xenc:CipherData><xenc:ReferenceList><xenc:DataReference URI=\"#ED-d99068fc-bf0e-41f1-b79b-3503e3dd72fd\"/></xenc:ReferenceList></xenc:EncryptedKey><wsse:UsernameToken wsu:Id=\"UsernameToken-7bb5307f-92d9-4cbb-8288-4351a7bacaaa\"><wsse:Username>%s</wsse:Username><wsse:Password Type=\"PasswordText\">%s</wsse:Password></wsse:UsernameToken></wsse:Security></soapenv:Header><soapenv:Body><xenc:EncryptedData xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" Id=\"ED-d99068fc-bf0e-41f1-b79b-3503e3dd72fd\" Type=\"http://www.w3.org/2001/04/xmlenc#Content\"><xenc:EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#aes256-cbc\"/><xenc:CipherData><xenc:CipherValue>%s</xenc:CipherValue></xenc:CipherData></xenc:EncryptedData></soapenv:Body></soapenv:Envelope>",
+                ski,
+                cipherEphemeralKeyValue,
+                USERNAME,
+                PASSWORD,
+                cipherBodyValue);
+    }
 
 }

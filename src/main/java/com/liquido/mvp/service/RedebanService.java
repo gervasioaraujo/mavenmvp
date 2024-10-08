@@ -257,7 +257,7 @@ public class RedebanService {
     }
 
     public String executeSOAPAndHttpsRequestV0() throws IOException, UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
-        final var xmlSOAPEnvelopClean = RedebanUtils.getXmlSOAPEnvelopClean();
+        final var xmlSOAPEnvelopClean = RedebanUtils.getCleanXmlSOAPEnvelop_0();
         System.out.println("############ xmlSOAPEnvelopClean: ############");
         System.out.println(xmlSOAPEnvelopClean);
         System.out.println("########################");
@@ -266,7 +266,9 @@ public class RedebanService {
         return sendSOAPRequest(xmlSOAPEnvelopClean, SERVER_UNSECURE_PORT);
     }
 
-    public String executeSOAPAndHttpsRequestV1() throws Exception {
+    public String executeSOAPAndHttpsRequest_V1_V5(
+            final boolean usePrefix1
+    ) throws Exception {
         /*
          * 1 - criptografar o xml do body limpo:
          * - encriptar o body com chave efêmera (AES-256) e com o algoritmo AES_256_CBC
@@ -280,7 +282,12 @@ public class RedebanService {
 
         // 1.2) - encrypt SOAP body clean using Ephemeral Key (with AES-256-CBC);
         // SOAP body clean
-        final var xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag();
+        String xmlBodyClean = null;
+        if (usePrefix1) {
+            xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag();
+        } else {
+            xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag_V5();
+        }
         // final var encryptedSOAPBody = RedebanUtils.encryptSOAPBodyV1(xmlBodyClean, ephemeralKey, initVector);
         final var encryptedSOAPBody = AESCryptography.encryptV1(xmlBodyClean, ephemeralKey, initVector);
         System.out.println("############ encryptedSOAPBody: ############");
@@ -302,8 +309,14 @@ public class RedebanService {
         System.out.println(ski);
         System.out.println("########################");
 
-        String xmlOnlyEncryptedBody = RedebanUtils
-                .getXmlSOAPEnvelopOnlyCiphedBody(encryptedSOAPBody, encryptedEphemeralKey, ski);
+        String xmlOnlyEncryptedBody = null;
+        if (usePrefix1) {
+            xmlOnlyEncryptedBody = RedebanUtils
+                    .getXmlSOAPEnvelopOnlyCiphedBody(encryptedSOAPBody, encryptedEphemeralKey, ski);
+        } else {
+            xmlOnlyEncryptedBody = RedebanUtils
+                    .getXmlSOAPEnvelopOnlyCiphedBody_V5_V6(encryptedSOAPBody, encryptedEphemeralKey, ski);
+        }
         System.out.println("############ xmlOnlyEncryptedBody: ############");
         System.out.println(xmlOnlyEncryptedBody);
         System.out.println("########################");
@@ -604,7 +617,9 @@ public class RedebanService {
         }
     }*/
 
-    public String executeSOAPAndHttpsRequestV2() throws Exception {
+    public String executeSOAPAndHttpsRequest_V2_V6(
+            final boolean usePrefix1
+    ) throws Exception {
 
         // ****************************************************
         // 1)
@@ -622,7 +637,12 @@ public class RedebanService {
         System.out.println("########################");
 
         // 1.2) - encrypt SOAP body content clean using Ephemeral Key (with AES-256-CBC);
-        final var xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag();
+        String xmlBodyCleanStr = null;
+        if (usePrefix1) {
+            xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag();
+        } else {
+            xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag_V6();
+        }
         final var encryptedSOAPBody = AESCryptography.encryptV2(xmlBodyCleanStr, ephemeralKey, iv);
         System.out.println("############ encryptedSOAPBody: ############");
         System.out.println(encryptedSOAPBody);
@@ -645,8 +665,14 @@ public class RedebanService {
         System.out.println(ski);
         System.out.println("########################");
 
-        String xmlOnlyEncryptedBody = RedebanUtils
-                .getXmlSOAPEnvelopOnlyCiphedBody(encryptedSOAPBody, encryptedEphemeralKey, ski);
+        String xmlOnlyEncryptedBody = null;
+        if (usePrefix1) {
+            xmlOnlyEncryptedBody = RedebanUtils
+                    .getXmlSOAPEnvelopOnlyCiphedBody(encryptedSOAPBody, encryptedEphemeralKey, ski);
+        } else {
+            xmlOnlyEncryptedBody = RedebanUtils
+                    .getXmlSOAPEnvelopOnlyCiphedBody_V5_V6(encryptedSOAPBody, encryptedEphemeralKey, ski);
+        }
         System.out.println("############ xmlOnlyEncryptedBody: ############");
         System.out.println(xmlOnlyEncryptedBody);
         System.out.println("########################");
@@ -901,7 +927,34 @@ public class RedebanService {
         }
     }
 
-    private Document buildSoapXmlDocument(final String bodyContent) throws Exception {
+    private Document buildSoapXmlDocument_0(
+            final String bodyContent
+    ) throws Exception {
+        // New soap xml
+        MessageFactory messageFactory = MessageFactory.newInstance();
+        SOAPMessage soapMessage = messageFactory.createMessage();
+
+        // Soap create
+        SOAPEnvelope envelope = soapMessage.getSOAPPart().getEnvelope();
+        envelope.removeNamespaceDeclaration(envelope.getPrefix());
+        envelope.setPrefix("soapenv");
+        envelope.addNamespaceDeclaration("soapenv", "http://schemas.xmlsoap.org/soap/envelope/");
+
+        SOAPBody soapBody = envelope.getBody();
+        soapBody.setPrefix("soapenv");
+        SOAPHeader soapHeader = envelope.getHeader();
+        soapHeader.setPrefix("soapenv");
+        soapBody.addDocument(convertStringToDocument(bodyContent));
+
+        soapMessage.saveChanges();
+        return soapMessageToDocument(soapMessage);
+        /*Document doc = soapMessageToDocument(soapMessage);
+        return doc;*/
+    }
+
+    private Document buildSoapXmlDocument_1(
+            final String bodyContent
+    ) throws Exception {
         // New soap xml
         MessageFactory messageFactory = MessageFactory.newInstance();
         SOAPMessage soapMessage = messageFactory.createMessage();
@@ -942,7 +995,8 @@ public class RedebanService {
 
     // WSS4J - 2.4.3 version
     public String executeWss4jSOAPAndHttpsRequest(
-            final boolean encryptAndSign
+            final boolean encryptAndSign,
+            final boolean usePrefix1
     ) throws Exception {
 
         // 0) mounting basic SOAP envelop
@@ -958,8 +1012,15 @@ public class RedebanService {
         System.out.println(bodyContent);
         System.out.println("############################");
 
-        // ########## Resetting SOAP envelop tags ##########
-        final var soapXmlDocument = buildSoapXmlDocument(bodyContent);
+        Document soapXmlDocument = null;
+        if (!usePrefix1) {
+            // ########## Setting SOAP envelop tags prefix to soapenv: ##########
+            soapXmlDocument = buildSoapXmlDocument_0(bodyContent);
+        } else {
+            // ########## Setting SOAP envelop tags prefix to soap-env: ##########
+            soapXmlDocument = buildSoapXmlDocument_1(bodyContent);
+        }
+
         System.out.println("\n############# BASIC SOAP ENVELOP - with no Header (soapXmlDocument Str): ###############");
         System.out.println(nodeToString(soapXmlDocument));
         System.out.println("############################");
