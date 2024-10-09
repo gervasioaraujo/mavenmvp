@@ -110,7 +110,7 @@ public class Wss4jUtils {
         //usernameToken.setPasswordType(null);
         usernameToken.build(); // ****************
 
-        System.out.println("\n############# ADDED Sec Header to SOAP ENVELOP: ###############");
+        System.out.println("\n############# ADDED Sec Header [ SOAP ENVELOP CLEAN ]: ###############");
         System.out.println(nodeToString(doc));
         System.out.println("############################");
 
@@ -235,7 +235,7 @@ public class Wss4jUtils {
         usernameToken.build(); // ****************
 
 
-        System.out.println("\n############# ADDED Sec Header to SOAP ENVELOP: ###############");
+        System.out.println("\n############# ADDED Sec Header [ SOAP ENVELOP CLEAN ]: ###############");
         System.out.println(nodeToString(doc));
         System.out.println("############################");
 

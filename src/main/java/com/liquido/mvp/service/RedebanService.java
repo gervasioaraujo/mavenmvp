@@ -39,7 +39,9 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public class RedebanService {
 
@@ -173,34 +175,42 @@ public class RedebanService {
                             "null or zero-length authentication type");
                 }
 
-                /*System.out.println("\n****************************");
+                System.out.println("\n****************************");
                 System.out.println("certs.length: " + certs.length);
                 System.out.println("****************************");
 
-                System.out.println("\n************ certs[0]: ****************");
-                System.out.println("certs[0].getPublicKey(): " + certs[0].getPublicKey());
-                System.out.println("certs[0].getType(): " + certs[0].getType());
-                System.out.println("****************************");
+                for (X509Certificate cert : certs) {
+                    System.out.println("\n************ received serverCert: ****************");
+                    System.out.println("serverCert.getPublicKey(): " + cert.getPublicKey());
+                    System.out.println("serverCert.getType(): " + cert.getType());
+                    System.out.println("Subject: " + cert.getSubjectDN());
+                    System.out.println("serverCert.getIssuerDN(): " + cert.getIssuerDN());
+                    System.out.println("Serial Number: " + cert.getSerialNumber());
+                    System.out.println("serverCert.getIssuerX500Principal(): " + cert.getIssuerX500Principal());
+                    System.out.println("****************************");
+                }
+
+                final var serverCert = certs[0]; // ***************************************
 
                 System.out.println("\n************ trusted: ****************");
                 System.out.println("trusted.getPublicKey(): " + trusted.getPublicKey());
                 System.out.println("trusted.getType(): " + trusted.getType());
-                System.out.println("****************************");*/
+                System.out.println("****************************");
 
                 // check if certificate sent is your CA's
-                if (!certs[0].equals(trusted)) {
+                if (!serverCert.equals(trusted)) {
 
                     // check if its been signed by the CA
 
                     try {
-                        certs[0].verify(trusted.getPublicKey());
+                        serverCert.verify(trusted.getPublicKey());
                     } catch (InvalidKeyException | NoSuchAlgorithmException
                              | NoSuchProviderException | SignatureException e) {
                         throw new CertificateException(e);
                     }
                 }
 
-                certs[0].checkValidity();
+                serverCert.checkValidity();
             }
         } };
 
@@ -262,7 +272,7 @@ public class RedebanService {
         System.out.println(xmlSOAPEnvelopClean);
         System.out.println("########################");
 
-        initMutualTlsHandshake();
+        initMutualTlsHandshake(); // not needed in 443 port
         return sendSOAPRequest(xmlSOAPEnvelopClean, SERVER_UNSECURE_PORT);
     }
 
@@ -288,6 +298,11 @@ public class RedebanService {
         } else {
             xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag_V5();
         }
+
+        System.out.println("############ xmlBodyClean: ############");
+        System.out.println(xmlBodyClean);
+        System.out.println("########################");
+
         // final var encryptedSOAPBody = RedebanUtils.encryptSOAPBodyV1(xmlBodyClean, ephemeralKey, initVector);
         final var encryptedSOAPBody = AESCryptography.encryptV1(xmlBodyClean, ephemeralKey, initVector);
         System.out.println("############ encryptedSOAPBody: ############");
@@ -643,6 +658,11 @@ public class RedebanService {
         } else {
             xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag_V6();
         }
+
+        System.out.println("############ xmlBodyCleanStr: ############");
+        System.out.println(xmlBodyCleanStr);
+        System.out.println("########################");
+
         final var encryptedSOAPBody = AESCryptography.encryptV2(xmlBodyCleanStr, ephemeralKey, iv);
         System.out.println("############ encryptedSOAPBody: ############");
         System.out.println(encryptedSOAPBody);
@@ -771,10 +791,34 @@ public class RedebanService {
          * URL to our SOAP UI service
          */
         final var SOAP_URI = String.format("https://www.txstestrbm.com:%s/CompraElectronica/Compra", serverPort);
+        System.out.printf("Sending request to: %s%n", SOAP_URI);
+
         URL url = new URL(SOAP_URI);
         URLConnection urlConnection = url.openConnection();
-
         final var httpsConn = (HttpsURLConnection) urlConnection;
+
+
+
+        // ################# Abre a conexão HTTPS
+        // HttpsURLConnection httpsConn = (HttpsURLConnection) url.openConnection();
+        // httpsConn.connect();
+
+        // Obtém a cadeia de certificados do servidor
+        /*Certificate[] certs = httpsConn.getServerCertificates();
+
+        System.out.println("\n\n---------------------------------------------------");
+        System.out.println("Cadeia de Certificados do Servidor:");
+        for (Certificate cert : certs) {
+            X509Certificate x509Cert = (X509Certificate) cert;
+            System.out.println("Subject: " + x509Cert.getSubjectDN());
+            System.out.println("Issuer: " + x509Cert.getIssuerDN());
+            System.out.println("Serial Number: " + x509Cert.getSerialNumber());
+            System.out.println("---------------------------------------------------\n\n");
+        }*/
+        // ###########################################
+
+
+
 
         byte[] buffer = new byte[xmlSOAPEnvelop.length()];
         buffer = xmlSOAPEnvelop.getBytes();
