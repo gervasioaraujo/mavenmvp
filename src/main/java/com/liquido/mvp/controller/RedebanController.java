@@ -18,6 +18,7 @@ public class RedebanController {
          * - Usa um SOAP message limpo e envia para o server na porta 443
          * ******** With "soapenv:" prefix
          * */
+        System.out.println("\n\n => Running V0 route...");
         try {
             return redebanService.executeSOAPAndHttpsRequestV0();
         } catch (Exception e) {
@@ -35,6 +36,7 @@ public class RedebanController {
         * - Envia o xml somente cifrado.
         * // ******** With "soap-env:" prefix
         * */
+        System.out.println("\n\n => Running V1 route...");
         try {
             return redebanService.executeSOAPAndHttpsRequest_V1_V5(true);
         } catch (Exception e) {
@@ -52,6 +54,7 @@ public class RedebanController {
          * - Envia o xml somente cifrado.
          * // ******** With "soap-env:" prefix
          * */
+        System.out.println("\n\n => Running V2 route...");
         try {
             return redebanService.executeSOAPAndHttpsRequest_V2_V6(true);
         } catch (Exception e) {
@@ -79,6 +82,7 @@ public class RedebanController {
          * - Envia o xml somente cifrado.
          * // ******** With "soap-env:" prefix
          * */
+        System.out.println("\n\n => Running V3 route...");
         try {
             return redebanService.executeWss4jSOAPAndHttpsRequest(false, true);
         } catch (Exception e) {
@@ -97,6 +101,7 @@ public class RedebanController {
          * - Envia o xml cifrado e assinado.
          * // ******** With "soap-env:" prefix
          * */
+        System.out.println("\n\n => Running V4 route...");
         try {
             return redebanService.executeWss4jSOAPAndHttpsRequest(true, true);
         } catch (Exception e) {
@@ -114,6 +119,7 @@ public class RedebanController {
          * - Envia o xml somente cifrado.
          * // ******** With "soapenv:" prefix
          * */
+        System.out.println("\n\n => Running V5 route...");
         try {
             return redebanService.executeSOAPAndHttpsRequest_V1_V5(false);
         } catch (Exception e) {
@@ -131,6 +137,7 @@ public class RedebanController {
          * - Envia o xml somente cifrado.
          * // ******** With "soapenv:" prefix
          * */
+        System.out.println("\n\n => Running V6 route...");
         try {
             return redebanService.executeSOAPAndHttpsRequest_V2_V6(false);
         } catch (Exception e) {
@@ -149,6 +156,7 @@ public class RedebanController {
          * - Envia o xml somente cifrado.
          * // ******** With "soapenv:" prefix
          * */
+        System.out.println("\n\n => Running V7 route...");
         try {
             return redebanService.executeWss4jSOAPAndHttpsRequest(false, false);
         } catch (Exception e) {
@@ -167,6 +175,7 @@ public class RedebanController {
          * - Envia o xml cifrado e assinado.
          * // ******** With "soapenv:" prefix
          * */
+        System.out.println("\n\n => Running V8 route...");
         try {
             return redebanService.executeWss4jSOAPAndHttpsRequest(true, false);
         } catch (Exception e) {
