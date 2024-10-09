@@ -982,6 +982,7 @@ public class RedebanService {
         SOAPEnvelope envelope = soapMessage.getSOAPPart().getEnvelope();
         envelope.removeNamespaceDeclaration(envelope.getPrefix());
         envelope.setPrefix("soapenv");
+        envelope.addNamespaceDeclaration("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
         envelope.addNamespaceDeclaration("soapenv", "http://schemas.xmlsoap.org/soap/envelope/");
 
         SOAPBody soapBody = envelope.getBody();
@@ -1007,12 +1008,15 @@ public class RedebanService {
         SOAPEnvelope envelope = soapMessage.getSOAPPart().getEnvelope();
         envelope.removeNamespaceDeclaration(envelope.getPrefix());
         envelope.setPrefix("soap-env");
+        envelope.addNamespaceDeclaration("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
         envelope.addNamespaceDeclaration("soap-env", "http://schemas.xmlsoap.org/soap/envelope/");
+
+        SOAPHeader soapHeader = envelope.getHeader();
+        soapHeader.setPrefix("soap-env");
 
         SOAPBody soapBody = envelope.getBody();
         soapBody.setPrefix("soap-env");
-        SOAPHeader soapHeader = envelope.getHeader();
-        soapHeader.setPrefix("soap-env");
+
         soapBody.addDocument(convertStringToDocument(bodyContent));
 
         soapMessage.saveChanges();

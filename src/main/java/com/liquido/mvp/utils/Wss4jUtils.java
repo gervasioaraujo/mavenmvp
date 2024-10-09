@@ -89,19 +89,22 @@ public class Wss4jUtils {
         return CryptoFactory.getInstance(cryptoProps);
     }
 
-    public static String runWss4jEncryption(
+    public static Document encryptWithWss4j(
             final Crypto crypto,
-            final String keyAlias,
-            final String clientKeystorePassword,
             final Document doc,
             final String username,
-            final String password
+            final String password,
+            final WSSecHeader secHeader
     ) throws WSSecurityException {
 
-        // Initialize WSS4J configuration
-        WSSConfig.init();
-        WSSecHeader secHeader = new WSSecHeader(doc); // *********************
-        secHeader.insertSecurityHeader(); // *************************
+        // *************************************
+        final var header = (Element) doc.getElementsByTagName("soap-env:Header").item(0);
+
+        final var secHeaderElement = (Element) header.getElementsByTagName("wsse:Security").item(0);
+        secHeaderElement.removeAttribute("xmlns:wsse");
+        secHeaderElement.removeAttribute("xmlns:wsu");
+        // *************************************
+
 
         // ****************** Configuring Username and Password
         WSSecUsernameToken usernameToken = new WSSecUsernameToken(secHeader); // *******************
@@ -145,6 +148,35 @@ public class Wss4jUtils {
         encrypt.build(crypto, symmetricKey); // ***************************
 
 
+        // *************************************
+        System.out.println(header.getElementsByTagName("xenc:EncryptedKey").getLength());
+        System.out.println(secHeaderElement.getElementsByTagName("xenc:EncryptedKey").getLength());
+
+        final var encryptedKeyElm = (Element) secHeaderElement.getElementsByTagName("xenc:EncryptedKey").item(0);
+        encryptedKeyElm.removeAttribute("Id");
+
+        final var encryptionMethodElm = (Element) encryptedKeyElm.getElementsByTagName("xenc:EncryptionMethod").item(0);
+        encryptionMethodElm.setAttribute("xmlns:dsig", "http://www.w3.org/2000/09/xmldsig#");
+
+        final var cipherDataElm = (Element) encryptedKeyElm.getElementsByTagName("xenc:CipherData").item(0);
+        cipherDataElm.setAttribute("xmlns:dsig", "http://www.w3.org/2000/09/xmldsig#");
+
+        final var keyInfoHeaderElm = (Element) encryptedKeyElm.getElementsByTagName("ds:KeyInfo").item(0);
+        keyInfoHeaderElm.setPrefix("dsig");
+        keyInfoHeaderElm.removeAttribute("xmlns:ds");
+
+        final var refList = (Element) encryptedKeyElm.getElementsByTagName("xenc:ReferenceList").item(0);
+        final var dataReference = (Element) refList.getElementsByTagName("xenc:DataReference").item(0);
+        dataReference.setAttribute("URI", "#body");
+
+        final var usernameTokenElm = (Element) secHeaderElement.getElementsByTagName("wsse:UsernameToken").item(0);
+        usernameTokenElm.removeAttribute("xmlns:wsu");
+        usernameTokenElm.removeAttribute("wsu:Id");
+        final var passwordElm = (Element) usernameTokenElm.getElementsByTagName("wsse:Password").item(0);
+        passwordElm.removeAttribute("Type");
+        // *************************************
+
+
         // ***************** Removing KeyInfo tag from Body tag
         Element soapBody = (Element) doc.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body").item(0);
         // Find KeyInfo element from SOAP Body
@@ -155,16 +187,44 @@ public class Wss4jUtils {
             keyInfoNode.getParentNode().removeChild(keyInfoNode);
         }
 
-        final var encryptedSOAPEnvelop = nodeToString(doc);
+
+        // ******************************
+        soapBody.setAttribute("xmlns:ns15", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+        soapBody.setAttribute("ns15:Id", "id-4f5036d7-4c08-45ab-a484-7ce5411d097e");
+        final var encryptedDataElm = (Element) soapBody.getElementsByTagName("xenc:EncryptedData").item(0);
+        encryptedDataElm.setAttribute("Id", "body");
+        // ******************************
+
+        return doc;
+    }
+
+    public static String runWss4jEncryption(
+            final Crypto crypto,
+            final String keyAlias,
+            final String clientKeystorePassword,
+            final Document doc,
+            final String username,
+            final String password
+    ) throws WSSecurityException {
+
+        // Initialize WSS4J configuration
+        WSSConfig.init();
+        WSSecHeader secHeader = new WSSecHeader(doc); // *********************
+        secHeader.insertSecurityHeader(); // *************************
+
+        final var encryptedDoc = encryptWithWss4j(crypto, doc, username, password, secHeader);
+
+        return nodeToString(encryptedDoc);
+
         /*System.out.println("\n############# ENCRYPTED SOAP ENVELOP: ###############");
         System.out.println(encryptedSOAPEnvelop);
         System.out.println("############################");*/
 
         // #######################################################
-        WSSecTimestamp timestamp = new WSSecTimestamp(secHeader); // ***********************
+        /*WSSecTimestamp timestamp = new WSSecTimestamp(secHeader); // ***********************
         // WSSecTimestamp timestamp = new WSSecTimestamp(wssConfig);
         timestamp.setTimeToLive(300); // 5 minutes
-        timestamp.build(); // **********************
+        timestamp.build(); // ***********************/
 
 
 
@@ -194,8 +254,6 @@ public class Wss4jUtils {
         System.out.println(signedSOAPEnvelop);
         System.out.println("############################");
         // return signedEncryption;*/
-
-        return encryptedSOAPEnvelop;
     }
 
     // move this to a DOMUtils class
@@ -223,6 +281,13 @@ public class Wss4jUtils {
     ) throws WSSecurityException {
 
         // Initialize WSS4J configuration
+        WSSConfig.init();
+        WSSecHeader secHeader = new WSSecHeader(doc); // *********************
+        secHeader.insertSecurityHeader(); // *************************
+
+        final var encryptedDoc = encryptWithWss4j(crypto, doc, username, password, secHeader);
+
+        /*// Initialize WSS4J configuration
         WSSConfig.init();
         WSSecHeader secHeader = new WSSecHeader(doc); // *********************
         secHeader.insertSecurityHeader(); // *************************
@@ -281,7 +346,7 @@ public class Wss4jUtils {
             keyInfoNode.getParentNode().removeChild(keyInfoNode);
         }
 
-        final var encryptedSOAPEnvelop = nodeToString(doc);
+        final var encryptedSOAPEnvelop = nodeToString(doc);*/
         /*System.out.println("\n############# ENCRYPTED SOAP ENVELOP: ###############");
         System.out.println(encryptedSOAPEnvelop);
         System.out.println("############################");*/
@@ -316,7 +381,9 @@ public class Wss4jUtils {
                 sign.addReferencesToSign(sign.getParts());
         sign.computeSignature(referenceList, false, null);
 
-        return nodeToString(doc);
+        // return nodeToString(doc);
+        return nodeToString(encryptedDoc);
+
         // final var signedSOAPEnvelop = nodeToString(doc);
         /*System.out.println("\n############# SIGNED SOAP ENVELOP: ###############");
         System.out.println(signedSOAPEnvelop);
