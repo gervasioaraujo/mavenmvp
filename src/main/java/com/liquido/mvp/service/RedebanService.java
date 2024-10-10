@@ -6,6 +6,7 @@ import com.liquido.mvp.utils.Wss4jUtils;
 import com.liquido.mvp.utils.crypto.AESCryptography;
 import com.liquido.mvp.utils.RedebanUtils;
 import com.liquido.mvp.utils.crypto.RSACryptography;
+import org.apache.wss4j.dom.WSConstants;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import java.nio.charset.StandardCharsets;
@@ -294,8 +295,10 @@ public class RedebanService {
         // SOAP body clean
         String xmlBodyClean = null;
         if (usePrefix1) {
+            // soap-env:
             xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag();
         } else {
+            // soapenv:
             xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag_V5();
         }
 
@@ -654,8 +657,10 @@ public class RedebanService {
         // 1.2) - encrypt SOAP body content clean using Ephemeral Key (with AES-256-CBC);
         String xmlBodyCleanStr = null;
         if (usePrefix1) {
+            // soap-env:
             xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag();
         } else {
+            // soapenv:
             xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag_V6();
         }
 
@@ -1008,14 +1013,19 @@ public class RedebanService {
         SOAPEnvelope envelope = soapMessage.getSOAPPart().getEnvelope();
         envelope.removeNamespaceDeclaration(envelope.getPrefix());
         envelope.setPrefix("soap-env");
-        envelope.addNamespaceDeclaration("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
-        envelope.addNamespaceDeclaration("soap-env", "http://schemas.xmlsoap.org/soap/envelope/");
+        // envelope.addNamespaceDeclaration("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
+        envelope.addNamespaceDeclaration("wsse", WSConstants.WSSE_NS);
+        // envelope.addNamespaceDeclaration("soap-env", "http://schemas.xmlsoap.org/soap/envelope/");
+        envelope.addNamespaceDeclaration("soap-env", WSConstants.URI_SOAP11_ENV);
 
         SOAPHeader soapHeader = envelope.getHeader();
         soapHeader.setPrefix("soap-env");
 
         SOAPBody soapBody = envelope.getBody();
         soapBody.setPrefix("soap-env");
+        // soapBody.setAttribute("xmlns:ns15", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+        soapBody.addNamespaceDeclaration("ns15", WSConstants.WSU_NS);
+        soapBody.setAttribute("ns15:Id", "id-4f5036d7-4c08-45ab-a484-7ce5411d097e"); // TODO *****************************
 
         soapBody.addDocument(convertStringToDocument(bodyContent));
 
@@ -1062,10 +1072,11 @@ public class RedebanService {
 
         Document soapXmlDocument = null;
         if (!usePrefix1) {
-            // ########## Setting SOAP envelop tags prefix to soapenv: ##########
+            // ########## Setting SOAP envelop tags prefix to "soapenv:" ##########
             soapXmlDocument = buildSoapXmlDocument_0(bodyContent);
         } else {
-            // ########## Setting SOAP envelop tags prefix to soap-env: ##########
+            // ########## Setting SOAP envelop tags prefix to "soap-env:" ##########
+            // V3 e V4
             soapXmlDocument = buildSoapXmlDocument_1(bodyContent);
         }
 
@@ -1089,30 +1100,15 @@ public class RedebanService {
 
         // final var secHeaderStr = "<wsse:Security soap-env:mustUnderstand=\"1\"></wsse:Security>";
 
-        String finalSOAPStr = null;
-        if (!encryptAndSign) {
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA");
-            finalSOAPStr = Wss4jUtils.runWss4jEncryption(
-                    crypto,
-                    CLIENT_KEYSTORE_ALIAS,
-                    CLIENT_KEYSTORE_PASSWORD,
-                    soapXmlDocument,
-                    RedebanUtils.USERNAME,
-                    RedebanUtils.PASSWORD
-            );
-            System.out.println("\n############# ENCRYPTED SOAP ENVELOP: ###############");
-        } else {
-            System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBB");
-            finalSOAPStr = Wss4jUtils.runWss4jEncryptionAndSignature(
-                    crypto,
-                    CLIENT_KEYSTORE_ALIAS,
-                    CLIENT_KEYSTORE_PASSWORD,
-                    soapXmlDocument,
-                    RedebanUtils.USERNAME,
-                    RedebanUtils.PASSWORD
-            );
-            System.out.println("\n############# ENCRYPTED AND SIGNED SOAP ENVELOP: ###############");
-        }
+        String finalSOAPStr = Wss4jUtils.runWss4jEncryptionAndSignature(
+                crypto,
+                CLIENT_KEYSTORE_ALIAS,
+                CLIENT_KEYSTORE_PASSWORD,
+                soapXmlDocument,
+                RedebanUtils.USERNAME,
+                RedebanUtils.PASSWORD,
+                encryptAndSign
+        );
 
 
         // System.out.println("\n############# FINAL SOAP ENVELOP to send to Redeban: ###############");

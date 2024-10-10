@@ -89,7 +89,7 @@ public class Wss4jUtils {
         return CryptoFactory.getInstance(cryptoProps);
     }
 
-    public static Document encryptWithWss4j(
+    private static Document encryptWithWss4j(
             final Crypto crypto,
             final Document doc,
             final String username,
@@ -135,6 +135,10 @@ public class Wss4jUtils {
         WSEncryptionPart encP = new WSEncryptionPart(
                 "Body", WSConstants.URI_SOAP11_ENV, "Content"
         );
+
+        // Defina o namespace de criptografia XML
+        // encP.setEncModifier(WSConstants.ENC_NS); // Gervásio ********************************
+
         List<WSEncryptionPart> encParts = new ArrayList<>();
         encParts.add(encP);
 
@@ -189,71 +193,13 @@ public class Wss4jUtils {
 
 
         // ******************************
-        soapBody.setAttribute("xmlns:ns15", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-        soapBody.setAttribute("ns15:Id", "id-4f5036d7-4c08-45ab-a484-7ce5411d097e");
+        /*soapBody.setAttribute("xmlns:ns15", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+        soapBody.setAttribute("ns15:Id", "id-4f5036d7-4c08-45ab-a484-7ce5411d097e");*/
         final var encryptedDataElm = (Element) soapBody.getElementsByTagName("xenc:EncryptedData").item(0);
         encryptedDataElm.setAttribute("Id", "body");
         // ******************************
 
         return doc;
-    }
-
-    public static String runWss4jEncryption(
-            final Crypto crypto,
-            final String keyAlias,
-            final String clientKeystorePassword,
-            final Document doc,
-            final String username,
-            final String password
-    ) throws WSSecurityException {
-
-        // Initialize WSS4J configuration
-        WSSConfig.init();
-        WSSecHeader secHeader = new WSSecHeader(doc); // *********************
-        secHeader.insertSecurityHeader(); // *************************
-
-        final var encryptedDoc = encryptWithWss4j(crypto, doc, username, password, secHeader);
-
-        return nodeToString(encryptedDoc);
-
-        /*System.out.println("\n############# ENCRYPTED SOAP ENVELOP: ###############");
-        System.out.println(encryptedSOAPEnvelop);
-        System.out.println("############################");*/
-
-        // #######################################################
-        /*WSSecTimestamp timestamp = new WSSecTimestamp(secHeader); // ***********************
-        // WSSecTimestamp timestamp = new WSSecTimestamp(wssConfig);
-        timestamp.setTimeToLive(300); // 5 minutes
-        timestamp.build(); // ***********************/
-
-
-
-
-        /*// 2) Sign the SOAP message
-        WSSecSignature sign = new WSSecSignature(secHeader);
-
-        sign.setUserInfo(keyAlias, clientKeystorePassword);
-
-        sign.setKeyIdentifierType(WSConstants.CUSTOM_KEY_IDENTIFIER);
-        sign.setSigCanonicalization(WSConstants.C14N_EXCL_WITH_COMMENTS);
-        sign.setSignatureAlgorithm(WSConstants.RSA_SHA512);
-        sign.setDigestAlgo(WSConstants.SHA512);
-        List<WSEncryptionPart> parts = new ArrayList<>();
-        parts.add(new WSEncryptionPart("Timestamp", WSConstants.WSU_NS, ""));
-        parts.add(new WSEncryptionPart("Body", WSConstants.URI_SOAP11_ENV, ""));
-        sign.getParts().addAll(parts);
-        sign.setAddInclusivePrefixes(false);
-
-        sign.prepare(crypto);
-        List<javax.xml.crypto.dsig.Reference> referenceList =
-                sign.addReferencesToSign(sign.getParts());
-        sign.computeSignature(referenceList, false, null);
-
-        final var signedSOAPEnvelop = nodeToString(doc);
-        System.out.println("\n############# SIGNED SOAP ENVELOP: ###############");
-        System.out.println(signedSOAPEnvelop);
-        System.out.println("############################");
-        // return signedEncryption;*/
     }
 
     // move this to a DOMUtils class
@@ -271,85 +217,13 @@ public class Wss4jUtils {
         }
     }
 
-    public static String runWss4jEncryptionAndSignature(
+    private static Document signWithWss4j(
             final Crypto crypto,
             final String keyAlias,
             final String clientKeystorePassword,
             final Document doc,
-            final String username,
-            final String password
+            final WSSecHeader secHeader
     ) throws WSSecurityException {
-
-        // Initialize WSS4J configuration
-        WSSConfig.init();
-        WSSecHeader secHeader = new WSSecHeader(doc); // *********************
-        secHeader.insertSecurityHeader(); // *************************
-
-        final var encryptedDoc = encryptWithWss4j(crypto, doc, username, password, secHeader);
-
-        /*// Initialize WSS4J configuration
-        WSSConfig.init();
-        WSSecHeader secHeader = new WSSecHeader(doc); // *********************
-        secHeader.insertSecurityHeader(); // *************************
-
-        // ****************** Configuring Username and Password
-        WSSecUsernameToken usernameToken = new WSSecUsernameToken(secHeader); // *******************
-        usernameToken.setPasswordType(WSConstants.PW_TEXT);
-        usernameToken.setUserInfo(username, password);
-        //usernameToken.setPasswordType(null);
-        usernameToken.build(); // ****************
-
-
-        System.out.println("\n############# ADDED Sec Header [ SOAP ENVELOP CLEAN ]: ###############");
-        System.out.println(nodeToString(doc));
-        System.out.println("############################");
-
-
-        // ****************************************
-        // TODO: move the code snippet below to separated method ???????????????? **************************************************
-        // Encrypt the SOAP message
-        WSSecEncrypt encrypt = new WSSecEncrypt(secHeader);
-        encrypt.setUserInfo("server");
-        encrypt.setKeyIdentifierType(WSConstants.SKI_KEY_IDENTIFIER);
-        encrypt.setSymmetricEncAlgorithm(WSConstants.AES_256);
-        encrypt.setKeyEncAlgo(WSConstants.KEYTRANSPORT_RSA15);
-
-
-        // ---------------------------------------------------------------------------------
-        // ----------------------------------- ENCRYPTION ----------------------------------
-        // ---------------------------------------------------------------------------------
-        // 1) Encrypt the body
-        WSEncryptionPart encP = new WSEncryptionPart(
-                "Body", WSConstants.URI_SOAP11_ENV, "Content"
-        );
-        List<WSEncryptionPart> encParts = new ArrayList<>();
-        encParts.add(encP);
-
-
-        encrypt.getParts().addAll(encParts);
-
-
-        KeyGenerator keyGen = KeyUtils.getKeyGenerator(WSConstants.AES_256);
-        SecretKey symmetricKey = keyGen.generateKey(); // **************** Ephemeral Key
-
-
-        encrypt.build(crypto, symmetricKey);
-
-
-        // ***************** Removing KeyInfo tag from Body tag
-        Element soapBody = (Element) doc.getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body").item(0);
-        // Find KeyInfo element from SOAP Body
-        NodeList keyInfoNodes = soapBody.getElementsByTagNameNS("http://www.w3.org/2000/09/xmldsig#", "KeyInfo");
-        // Foreach nodes and remove KeyInfo element
-        for (int i = keyInfoNodes.getLength() - 1; i >= 0; i--) {
-            Node keyInfoNode = keyInfoNodes.item(i);
-            keyInfoNode.getParentNode().removeChild(keyInfoNode);
-        }
-
-        final var encryptedSOAPEnvelop = nodeToString(doc);*/
-        /*System.out.println("\n############# ENCRYPTED SOAP ENVELOP: ###############");
-        System.out.println(encryptedSOAPEnvelop);
-        System.out.println("############################");*/
 
         // #######################################################
         WSSecTimestamp timestamp = new WSSecTimestamp(secHeader); // ***********************
@@ -367,12 +241,16 @@ public class Wss4jUtils {
         sign.setUserInfo(keyAlias, clientKeystorePassword);
 
         sign.setKeyIdentifierType(WSConstants.CUSTOM_KEY_IDENTIFIER);
-        sign.setSigCanonicalization(WSConstants.C14N_EXCL_WITH_COMMENTS);
+        sign.setSigCanonicalization(WSConstants.C14N_EXCL_WITH_COMMENTS); // **** Canonicalization
         sign.setSignatureAlgorithm(WSConstants.RSA_SHA512);
         sign.setDigestAlgo(WSConstants.SHA512);
+
         List<WSEncryptionPart> parts = new ArrayList<>();
         parts.add(new WSEncryptionPart("Timestamp", WSConstants.WSU_NS, ""));
         parts.add(new WSEncryptionPart("Body", WSConstants.URI_SOAP11_ENV, ""));
+
+        // parts.add(new WSEncryptionPart("Envelope", WSConstants.URI_SOAP11_ENV, ""));
+
         sign.getParts().addAll(parts);
         sign.setAddInclusivePrefixes(false);
 
@@ -382,14 +260,37 @@ public class Wss4jUtils {
         sign.computeSignature(referenceList, false, null);
 
         // return nodeToString(doc);
-        return nodeToString(encryptedDoc);
+        return doc;
+    }
 
-        // final var signedSOAPEnvelop = nodeToString(doc);
-        /*System.out.println("\n############# SIGNED SOAP ENVELOP: ###############");
-        System.out.println(signedSOAPEnvelop);
-        System.out.println("############################");*/
-        // return signedEncryption;
+    public static String runWss4jEncryptionAndSignature(
+            final Crypto crypto,
+            final String keyAlias,
+            final String clientKeystorePassword,
+            final Document doc,
+            final String username,
+            final String password,
+            final boolean encryptAndSign
+    ) throws WSSecurityException {
 
-        // return signedSOAPEnvelop;
+        // Initialize WSS4J configuration
+        WSSConfig.init();
+        WSSecHeader secHeader = new WSSecHeader(doc); // *********************
+        secHeader.insertSecurityHeader(); // *************************
+
+        final var encryptedDoc = encryptWithWss4j(crypto, doc, username, password, secHeader);
+
+        System.out.println("\n############# ONLY ENCRYPTED SOAP ENVELOP: ###############");
+
+        if (!encryptAndSign) {
+            return nodeToString(encryptedDoc);
+        }
+
+        System.out.println(nodeToString(encryptedDoc));
+
+        final var signedDoc = signWithWss4j(crypto, keyAlias, clientKeystorePassword, encryptedDoc, secHeader);
+
+        System.out.println("\n############# ENCRYPTED AND SIGNED SOAP ENVELOP: ###############");
+        return nodeToString(signedDoc);
     }
 }
