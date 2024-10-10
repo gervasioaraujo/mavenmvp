@@ -278,7 +278,8 @@ public class RedebanService {
     }
 
     public String executeSOAPAndHttpsRequest_V1_V5(
-            final boolean usePrefix1
+            final boolean usePrefix1,
+            final boolean useInitVector
     ) throws Exception {
         /*
          * 1 - criptografar o xml do body limpo:
@@ -296,7 +297,7 @@ public class RedebanService {
         String xmlBodyClean = null;
         if (usePrefix1) {
             // soap-env:
-            xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag();
+            xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag(); // V1
         } else {
             // soapenv:
             xmlBodyClean = RedebanUtils.getXmlBodyCleanIncludingBodyTag_V5();
@@ -307,7 +308,7 @@ public class RedebanService {
         System.out.println("########################");
 
         // final var encryptedSOAPBody = RedebanUtils.encryptSOAPBodyV1(xmlBodyClean, ephemeralKey, initVector);
-        final var encryptedSOAPBody = AESCryptography.encryptV1(xmlBodyClean, ephemeralKey, initVector);
+        final var encryptedSOAPBody = AESCryptography.encryptV1(xmlBodyClean, ephemeralKey, initVector, useInitVector);
         System.out.println("############ encryptedSOAPBody: ############");
         System.out.println(encryptedSOAPBody);
         System.out.println("########################");
@@ -636,7 +637,8 @@ public class RedebanService {
     }*/
 
     public String executeSOAPAndHttpsRequest_V2_V6(
-            final boolean usePrefix1
+            final boolean usePrefix1,
+            final boolean useInitVector
     ) throws Exception {
 
         // ****************************************************
@@ -658,7 +660,7 @@ public class RedebanService {
         String xmlBodyCleanStr = null;
         if (usePrefix1) {
             // soap-env:
-            xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag();
+            xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag(); // V2
         } else {
             // soapenv:
             xmlBodyCleanStr = RedebanUtils.getXmlBodyCleanExcludingBodyTag_V6();
@@ -668,7 +670,7 @@ public class RedebanService {
         System.out.println(xmlBodyCleanStr);
         System.out.println("########################");
 
-        final var encryptedSOAPBody = AESCryptography.encryptV2(xmlBodyCleanStr, ephemeralKey, iv);
+        final var encryptedSOAPBody = AESCryptography.encryptV2(xmlBodyCleanStr, ephemeralKey, iv, useInitVector);
         System.out.println("############ encryptedSOAPBody: ############");
         System.out.println(encryptedSOAPBody);
         System.out.println("########################");
@@ -1024,8 +1026,8 @@ public class RedebanService {
         SOAPBody soapBody = envelope.getBody();
         soapBody.setPrefix("soap-env");
         // soapBody.setAttribute("xmlns:ns15", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-        soapBody.addNamespaceDeclaration("ns15", WSConstants.WSU_NS);
-        soapBody.setAttribute("ns15:Id", "id-4f5036d7-4c08-45ab-a484-7ce5411d097e"); // TODO *****************************
+        soapBody.addNamespaceDeclaration("ns14", WSConstants.WSU_NS);
+        soapBody.setAttribute("ns14:Id", "id-4f5036d7-4c08-45ab-a484-7ce5411d097e"); // TODO *****************************
 
         soapBody.addDocument(convertStringToDocument(bodyContent));
 

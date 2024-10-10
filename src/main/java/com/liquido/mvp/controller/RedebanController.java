@@ -38,7 +38,25 @@ public class RedebanController {
         * */
         System.out.println("\n\n => Running V1 route...");
         try {
-            return redebanService.executeSOAPAndHttpsRequest_V1_V5(true);
+            return redebanService.executeSOAPAndHttpsRequest_V1_V5(true, true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/mvp/v1a/redeban")
+    public String redebanV1A() {
+        /*
+         * - Usa uma chave efêmera estática;
+         * - NÃO Usa um vetor de inicialização (IV);
+         * - Criptografa o body incluindo a tag <soap-env: Body>;
+         * - Usa o ski estático = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
+         * - Envia o xml somente cifrado.
+         * // ******** With "soap-env:" prefix
+         * */
+        System.out.println("\n\n => Running V1A route...");
+        try {
+            return redebanService.executeSOAPAndHttpsRequest_V1_V5(true, false);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -56,7 +74,25 @@ public class RedebanController {
          * */
         System.out.println("\n\n => Running V2 route...");
         try {
-            return redebanService.executeSOAPAndHttpsRequest_V2_V6(true);
+            return redebanService.executeSOAPAndHttpsRequest_V2_V6(true, true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/mvp/v2a/redeban")
+    public String redebanV2A() {
+        /*
+         * - Usa uma chave efêmera gerada dinamicamente;
+         * - NÃO Usa um vetor de inicialização;
+         * - Criptografa o body não incluindo a tag <soap-env: Body> (somente o conteúdo dentro do body);
+         * - Usa o ski estático = "MEm79zLpk2XK2hXT3uPyx6VB0Og=";
+         * - Envia o xml somente cifrado.
+         * // ******** With "soap-env:" prefix
+         * */
+        System.out.println("\n\n => Running V2A route...");
+        try {
+            return redebanService.executeSOAPAndHttpsRequest_V2_V6(true, false);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -125,7 +161,7 @@ public class RedebanController {
          * */
         System.out.println("\n\n => Running V5 route...");
         try {
-            return redebanService.executeSOAPAndHttpsRequest_V1_V5(false);
+            return redebanService.executeSOAPAndHttpsRequest_V1_V5(false, true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -143,7 +179,7 @@ public class RedebanController {
          * */
         System.out.println("\n\n => Running V6 route...");
         try {
-            return redebanService.executeSOAPAndHttpsRequest_V2_V6(false);
+            return redebanService.executeSOAPAndHttpsRequest_V2_V6(false, true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

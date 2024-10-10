@@ -34,7 +34,8 @@ public class AESCryptography {
     public static String encryptV1(
             final String plainText,
             final String ephemeralKey,
-            final String initVector
+            final String initVector,
+            final boolean useInitVector
     ) throws Exception {
 
         SecretKeySpec skeySpec = new SecretKeySpec(ephemeralKey.getBytes("UTF-8"), "AES");
@@ -42,7 +43,12 @@ public class AESCryptography {
 
         // "RSA-OAEP-MGF1 with AES-256-CBC" or 3DES-CBC with RSA-1_5 (RSA PKCS #1 v1.5)
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING"); // xml -> EncryptionMethod = aes256-cbc
-        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+        if (useInitVector) {
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+        } else {
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+        }
 
         byte[] cipherText = cipher.doFinal(plainText.getBytes());
 
@@ -54,11 +60,18 @@ public class AESCryptography {
     public static String encryptV2(
             final String plainText,
             final SecretKey secretKey,
-            final IvParameterSpec iv
+            final IvParameterSpec iv,
+            final boolean useInitVector
     ) throws Exception {
 
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+
+        if (useInitVector) {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+        } else {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+        }
+
         byte[] cipherText = cipher.doFinal(plainText.getBytes());
 
         // Encodes to Base64 for easy storage/transmission
