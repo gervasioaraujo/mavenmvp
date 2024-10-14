@@ -271,7 +271,7 @@ public class RedebanService {
         System.out.println(xmlSOAPEnvelopClean);
         System.out.println("########################");
 
-        initMutualTlsHandshake(); // not needed in 443 port
+        // initMutualTlsHandshake();
         return sendSOAPRequest(xmlSOAPEnvelopClean, SERVER_UNSECURE_PORT);
     }
 

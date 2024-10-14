@@ -596,10 +596,10 @@ public class Wss4jUtils {
         // ******************************
 
 
-        encrypt.build(serverCrypto, symmetricKey);
+        final var encryptedDoc = encrypt.build(serverCrypto, symmetricKey);
 
         // Remove keyInfo from body
-        Element soapbody = (Element) soapMessage
+        Element soapbody = (Element) encryptedDoc
                 .getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body").item(0);
         // Find KeyInfo element from SOAP Body
         NodeList keyInfoNodes = soapbody
@@ -610,16 +610,32 @@ public class Wss4jUtils {
             keyInfoNode.getParentNode().removeChild(keyInfoNode);
         }
 
-        return soapMessage;
+        // return soapMessage;
+        return encryptedDoc;
     }
 
     private static Document signWithWss4j_BR(
-            final Crypto crypto,
-            final String keyAlias,
+            final Crypto clientCrypto,
+            final String clientKeystoreAlias,
             final String clientKeystorePassword,
             final Document doc,
             final WSSecHeader secHeader
-    ) throws WSSecurityException {
+    ) throws Exception {
+
+
+        // Cria um objeto CryptoType para buscar o certificado público do servidor pelo alias ("server" in Dev/Test Environmnet)
+        CryptoType cryptoType = new CryptoType(CryptoType.TYPE.ALIAS);
+        cryptoType.setAlias(clientKeystoreAlias); // ("liauidoTest" in Dev/Test Environmnet)
+
+        // Obtém o certificado público do cliente
+        X509Certificate[] clientCerts = clientCrypto.getX509Certificates(cryptoType);
+        if (clientCerts == null || clientCerts.length == 0) {
+            throw new Exception("Certificado público do cliente não encontrado no keystore.");
+        }
+
+        X509Certificate clientCert = clientCerts[0];
+        System.out.println("@@@@@@@@@@@@@@ clientCert found: " + clientCert);
+
 
 
         // ---------------------------------------------------------------------------------
@@ -628,10 +644,17 @@ public class Wss4jUtils {
         // 2) Sign the SOAP message
         WSSecSignature sign = new WSSecSignature(secHeader);
 
-        sign.setUserInfo(keyAlias, clientKeystorePassword);
+        sign.setUserInfo(clientKeystoreAlias, clientKeystorePassword); // **********
 
-        sign.setKeyIdentifierType(WSConstants.CUSTOM_KEY_IDENTIFIER);
-        sign.setSigCanonicalization(WSConstants.C14N_EXCL_WITH_COMMENTS); // **** Canonicalization
+        /*sign.setUseSingleCertificate(true);
+        sign.setX509Certificate(clientCert);*/
+
+        // sign.setKeyIdentifierType(WSConstants.CUSTOM_KEY_IDENTIFIER); // ******** - China Team
+        sign.setKeyIdentifierType(WSConstants.BST_DIRECT_REFERENCE); // Referência direta do token
+
+        sign.setSigCanonicalization(WSConstants.C14N_EXCL_WITH_COMMENTS); // **** Canonicalization - China Team
+        // sign.setSigCanonicalization(WSConstants.C14N_EXCL_OMIT_COMMENTS); // Canonização XML exclusiva
+
         sign.setSignatureAlgorithm(WSConstants.RSA_SHA512);
         sign.setDigestAlgo(WSConstants.SHA512);
 
@@ -642,8 +665,11 @@ public class Wss4jUtils {
         timestamp.build(); // **********************
         // #######################################################
 
+        // sign.build(doc, privateKey, cert, secHeader);
+        // return sign.build(clientCrypto);
+
         List<WSEncryptionPart> parts = new ArrayList<>();
-        parts.add(new WSEncryptionPart("Timestamp", WSConstants.WSU_NS, ""));
+        // parts.add(new WSEncryptionPart("Timestamp", WSConstants.WSU_NS, ""));
         parts.add(new WSEncryptionPart("Body", WSConstants.URI_SOAP11_ENV, ""));
 
         // parts.add(new WSEncryptionPart("Envelope", WSConstants.URI_SOAP11_ENV, ""));
@@ -651,7 +677,7 @@ public class Wss4jUtils {
         sign.getParts().addAll(parts);
         sign.setAddInclusivePrefixes(false);
 
-        sign.prepare(crypto);
+        sign.prepare(clientCrypto);
         List<javax.xml.crypto.dsig.Reference> referenceList =
                 sign.addReferencesToSign(sign.getParts());
         sign.computeSignature(referenceList, false, null);
