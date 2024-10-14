@@ -2,9 +2,7 @@ package com.liquido.mvp.utils;
 
 import java.io.StringWriter;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.w3c.dom.Document;
@@ -39,7 +37,6 @@ import org.apache.wss4j.dom.message.WSSecTimestamp;
 import org.apache.wss4j.dom.message.WSSecUsernameToken;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
 public class Wss4jUtils {
 
@@ -290,16 +287,19 @@ public class Wss4jUtils {
         final var encryptedDoc = encryptWithWss4j(crypto, doc, username, password, secHeader, serverKeystoreAlias);
 
         System.out.println("\n############# ONLY ENCRYPTED SOAP ENVELOP: ###############");
+        System.out.println(nodeToString(encryptedDoc));
+        System.out.println("############################");
 
         if (!encryptAndSign) {
             return nodeToString(encryptedDoc);
         }
 
-        System.out.println(nodeToString(encryptedDoc));
-
         final var signedDoc = signWithWss4j(crypto, clientKeystoreAlias, keystorePassword, encryptedDoc, secHeader);
 
         System.out.println("\n############# ENCRYPTED AND SIGNED SOAP ENVELOP: ###############");
+        System.out.println(nodeToString(signedDoc));
+        System.out.println("############################");
+
         return nodeToString(signedDoc);
     }
 
@@ -365,7 +365,7 @@ public class Wss4jUtils {
             keyInfoNode.getParentNode().removeChild(keyInfoNode);
         }
 
-        System.out.println("############# ENCRYPTED ###############");
+        System.out.println("############# ONLY ENCRYPTED ###############");
         System.out.println(nodeToString(doc));
         System.out.println("############################");
 
@@ -398,7 +398,7 @@ public class Wss4jUtils {
         return signedEncryption;
     }
 
-    public static String runWss4jEncryptionAndSignature_V9_V10(
+    public static String runWss4jEncryptionAndSignature_BR(
             final String keystorePath,
             final String serverKeystoreAlias,
             final String clientKeystoreAlias,
@@ -407,53 +407,66 @@ public class Wss4jUtils {
             final boolean encryptAndSign
     ) throws Exception {
 
+        // ************************************
         // Loading the server Crypto properties
         final var serverCrypto = Wss4jUtils.loadCrypto(
                 keystorePassword,
                 serverKeystoreAlias,
                 keystorePath);
-
         System.out.println("@@@@@@@ serverCrypto loaded @@@@@@@");
         System.out.println(serverCrypto.getDefaultX509Identifier());
+        // ************************************
 
-        final var encryptedDoc = encryptWithWss4j_V9_V10(serverCrypto, soapDocument, serverKeystoreAlias);
+
+        // Cria o cabeçalho de segurança:
+        WSSecHeader secHeader = new WSSecHeader(soapDocument);
+        secHeader.insertSecurityHeader();
+
+        final var encryptedDoc = encryptWithWss4j_BR(serverCrypto, soapDocument, serverKeystoreAlias, secHeader);
 
         System.out.println("\n############# ONLY ENCRYPTED SOAP ENVELOP: ###############");
+        System.out.println(nodeToString(encryptedDoc));
+        System.out.println("############################");
 
         if (!encryptAndSign) {
             return nodeToString(encryptedDoc);
         }
 
-        return "Signature not implemented yet!!!";
 
-        // for sign: https://stackoverflow.com/questions/56701257/wsse-sign-an-element-inside-soapenvheader
-
-        /*System.out.println(nodeToString(encryptedDoc));
-
-        // Load the client Crypto properties
+        // ************************************
+        // Loading the client Crypto properties
         final var clientCrypto = Wss4jUtils.loadCrypto(
                 keystorePassword,
                 clientKeystoreAlias,
                 keystorePath);
 
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        System.out.println("@@@@@@@ clientCrypto loaded @@@@@@@");
+        System.out.println(clientCrypto.getDefaultX509Identifier());
+        // ************************************
 
-        final var signedDoc = signWithWss4j(clientCrypto, clientKeystoreAlias, keystorePassword, encryptedDoc, secHeader);
+        // return "Signature not implemented yet!!!";
+
+        // for sign: https://stackoverflow.com/questions/56701257/wsse-sign-an-element-inside-soapenvheader
+
+        final var signedDoc = signWithWss4j_BR(clientCrypto, clientKeystoreAlias, keystorePassword, encryptedDoc, secHeader);
 
         System.out.println("\n############# ENCRYPTED AND SIGNED SOAP ENVELOP: ###############");
-        return nodeToString(signedDoc);*/
+        System.out.println(nodeToString(signedDoc));
+        System.out.println("############################");
+
+        return nodeToString(signedDoc);
     }
 
-    private static Document encryptWithWss4j_V9_V10(
+    private static Document encryptWithWss4j_BR(
             final Crypto serverCrypto,
             final Document soapMessage,
-            final String serverCertAlias
+            final String serverCertAlias,
+            final WSSecHeader secHeader
     ) throws Exception {
 
-        // TODO: - checar se importa ou não carregar o crypto usando o alias do client ou do server;
         // TODO: - checar o que faz o método encrypt.setEncryptedKeyElement?
-        // TODO: - garantir SOMENTE O CONTEÚDO DENTRO DA TAG BODY DEVE SER CIFRADO;
 
+        // TODO: - garantir SOMENTE O CONTEÚDO DENTRO DA TAG BODY DEVE SER CIFRADO;
 
 
 
@@ -472,6 +485,15 @@ public class Wss4jUtils {
 
         X509Certificate serverCert = serverCerts[0];
         System.out.println("@@@@@@@@@@@@@@ serverCert found: " + serverCert);
+
+        // Obtém o valor do Subject Key Identifier (OID 2.5.29.14)
+        byte[] ski = serverCert.getExtensionValue("2.5.29.14");
+        if (ski != null) {
+            System.out.println("Subject Key Identifier (SKI) encontrado no certificado.");
+            System.out.println("Valor do SKI: " + Arrays.toString(ski));
+        } else {
+            System.out.println("Subject Key Identifier (SKI) NÃO encontrado no certificado.");
+        }
         // ######################################################
 
 
@@ -481,6 +503,18 @@ public class Wss4jUtils {
         // ######################### INÍCIO DA CIFRAGEM DO BODY E DA CHAVE EFÊMERA #############################
 
         WSSConfig.init();
+
+
+        WSSecUsernameToken usernameToken = new WSSecUsernameToken(secHeader);
+        usernameToken.setPasswordType(WSConstants.PW_TEXT);
+        usernameToken.setUserInfo(RedebanUtils.WSSEC_AUTH_USERNAME,
+                RedebanUtils.WSSEC_AUTH_PASSWORD);
+        //usernameToken.setPasswordType(null);
+        usernameToken.build();
+
+        // Configura o WS-Security para criptografia:
+        WSSecEncrypt encrypt = new WSSecEncrypt(secHeader);
+
 
         // 1)
         // - Gera uma chave simétrica temporária (efêmera)
@@ -493,44 +527,7 @@ public class Wss4jUtils {
         // *****************************
 
 
-
-        // Cria o cabeçalho de segurança:
-        WSSecHeader secHeader = new WSSecHeader(soapMessage);
-        secHeader.insertSecurityHeader();
-
-        // Configura o WS-Security para criptografia:
-        WSSecEncrypt encrypt = new WSSecEncrypt(secHeader);
-
-
-
-
-        // *************** SKI ***************
-        // Define o identificador da chave pública (RSA):
-        encrypt.setKeyIdentifierType(WSConstants.SKI_KEY_IDENTIFIER); // China Team
-        // encrypt.setKeyIdentifierType(WSConstants.X509_KEY_IDENTIFIER); // Gervásio - ChatGPT
-        // encrypt.setKeyIdentifierType(WSConstants.BST_DIRECT_REFERENCE); // Gervásio - ChatGPT
-        /*
-        * TODO: procurar saber mais sobre esses valores.
-        * */
-
-
-
-
-        // @@@@@@@@@@@@@ TODO: ESPECIFICAR QUE SOMENTE O CONTEÚDO DENTRO DA TAG BODY DEVE SER CIFRADO
-        // Obtém o elemento Body da mensagem SOAP
-        Element bodyElement = WSSecurityUtil.findBodyElement(soapMessage);
-        /*// Especifica que somente o conteúdo da tag Body será criptografado
-        encrypt.setElementToEncrypt(WSConstants.ELEM_BODY, soapMessage.getDocumentElement().getNamespaceURI());
-        // encrypt.setEncryptedKeyElement();
-
-        encrypt.build(soapDocument, crypto, secHeader);*/
-
-
-
-
-
-        // 2)
-        // Criptografia Simétrica:
+        // 2) Criptografia Simétrica:
         // - Cifrar o conteúdo do Body (com a chave efêmera e o algoritmo AES-256-CBC)
 
         // Define o algoritmo de criptografia simétrica para AES-256-CBC:
@@ -546,11 +543,6 @@ public class Wss4jUtils {
         // 3)
         // Criptografia Assimétrica:
         // - Cifrar a chave efêmera (com a chave pública da Redeban e o algoritmo RSA-OAEP-MGF1)
-
-        // Define o algoritmo assimétrico de transporte de chave para RSA-OAEP-MGF1:
-        // encrypt.setKeyEncAlgo(WSConstants.KEYTRANSPORT_RSA15); // *********************** código da China ***********************
-        encrypt.setKeyEncAlgo(WSConstants.KEYTRANSPORT_RSAOAEP);  // Algoritmo RSA-OAEP-MGF1
-        // TODO: observar que o valor da constante WSConstants.KEYTRANSPORT_RSAOAEP não corresponde ao valor exato que está no arquivo cifrado.xml.
 
         // Define o alias do certificado público da Redeban
         /*
@@ -577,9 +569,94 @@ public class Wss4jUtils {
         // O uso dos métodos setUseThisCert e setUseThisPublicKey acima dispensa o uso do encrypt.setUserInfo
         // ************
 
+        // *************** SKI ***************
+        // Define o identificador da chave pública (RSA):
+        encrypt.setKeyIdentifierType(WSConstants.SKI_KEY_IDENTIFIER);
+        /*if (ski != null) {
+            encrypt.setKeyIdentifierType(WSConstants.SKI_KEY_IDENTIFIER);
+        } else {
+            encrypt.setKeyIdentifierType(WSConstants.X509_KEY_IDENTIFIER);
+        }*/
+
+
+        // Define o algoritmo assimétrico de transporte de chave para RSA-OAEP-MGF1:
+        encrypt.setKeyEncAlgo(WSConstants.KEYTRANSPORT_RSAOAEP);  // Algoritmo RSA-OAEP-MGF1
+        // TODO: observar que o valor da constante WSConstants.KEYTRANSPORT_RSAOAEP não corresponde ao valor exato que está no arquivo cifrado.xml.
+
+
+
+        // @@@@@@@@@@@@@ SOMENTE O CONTEÚDO DENTRO DA TAG BODY ESTÁ SENDO CIFRADO
+        // Encrypt the body
+        WSEncryptionPart encP = new WSEncryptionPart(
+                "Body", WSConstants.URI_SOAP11_ENV, "Content"
+        );
+        List<WSEncryptionPart> encParts = new ArrayList<>();
+        encParts.add(encP);
+        encrypt.getParts().addAll(encParts);
+        // ******************************
+
+
         encrypt.build(serverCrypto, symmetricKey);
 
+        // Remove keyInfo from body
+        Element soapbody = (Element) soapMessage
+                .getElementsByTagNameNS("http://schemas.xmlsoap.org/soap/envelope/", "Body").item(0);
+        // Find KeyInfo element from SOAP Body
+        NodeList keyInfoNodes = soapbody
+                .getElementsByTagNameNS("http://www.w3.org/2000/09/xmldsig#", "KeyInfo");
+        // Foreach nodes and remove KeyInfo element
+        for (int i = keyInfoNodes.getLength() - 1; i >= 0; i--) {
+            Node keyInfoNode = keyInfoNodes.item(i);
+            keyInfoNode.getParentNode().removeChild(keyInfoNode);
+        }
 
         return soapMessage;
+    }
+
+    private static Document signWithWss4j_BR(
+            final Crypto crypto,
+            final String keyAlias,
+            final String clientKeystorePassword,
+            final Document doc,
+            final WSSecHeader secHeader
+    ) throws WSSecurityException {
+
+
+        // ---------------------------------------------------------------------------------
+        // ----------------------------------- SIGNATURE -----------------------------------
+        // ---------------------------------------------------------------------------------
+        // 2) Sign the SOAP message
+        WSSecSignature sign = new WSSecSignature(secHeader);
+
+        sign.setUserInfo(keyAlias, clientKeystorePassword);
+
+        sign.setKeyIdentifierType(WSConstants.CUSTOM_KEY_IDENTIFIER);
+        sign.setSigCanonicalization(WSConstants.C14N_EXCL_WITH_COMMENTS); // **** Canonicalization
+        sign.setSignatureAlgorithm(WSConstants.RSA_SHA512);
+        sign.setDigestAlgo(WSConstants.SHA512);
+
+        // #######################################################
+        WSSecTimestamp timestamp = new WSSecTimestamp(secHeader); // ***********************
+        // WSSecTimestamp timestamp = new WSSecTimestamp(wssConfig);
+        timestamp.setTimeToLive(300); // 5 minutes
+        timestamp.build(); // **********************
+        // #######################################################
+
+        List<WSEncryptionPart> parts = new ArrayList<>();
+        parts.add(new WSEncryptionPart("Timestamp", WSConstants.WSU_NS, ""));
+        parts.add(new WSEncryptionPart("Body", WSConstants.URI_SOAP11_ENV, ""));
+
+        // parts.add(new WSEncryptionPart("Envelope", WSConstants.URI_SOAP11_ENV, ""));
+
+        sign.getParts().addAll(parts);
+        sign.setAddInclusivePrefixes(false);
+
+        sign.prepare(crypto);
+        List<javax.xml.crypto.dsig.Reference> referenceList =
+                sign.addReferencesToSign(sign.getParts());
+        sign.computeSignature(referenceList, false, null);
+
+        // return nodeToString(doc);
+        return doc;
     }
 }

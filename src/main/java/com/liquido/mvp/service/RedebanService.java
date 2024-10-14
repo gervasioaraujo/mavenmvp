@@ -1136,8 +1136,8 @@ public class RedebanService {
 
 
         // System.out.println("\n############# FINAL SOAP ENVELOP to send to Redeban: ###############");
-        System.out.println(finalSOAPStr);
-        System.out.println("############################");
+        /*System.out.println(finalSOAPStr);
+        System.out.println("############################");*/
 
         // final var sc = initMutualTlsHandshake();
         initMutualTlsHandshake();
@@ -1192,9 +1192,8 @@ public class RedebanService {
     }
 
     // WSS4J - 2.4.3 version - BR Team
-    public String executeWss4jSOAPAndHttpsRequest_V9_V10(
-            final boolean encryptAndSign,
-            final boolean usePrefix1
+    public String executeWss4jSOAPAndHttpsRequest_BR(
+            final boolean encryptAndSign
     ) throws Exception {
 
         // 0) mounting basic SOAP envelop
@@ -1210,15 +1209,7 @@ public class RedebanService {
         System.out.println(bodyContent);
         System.out.println("############################");
 
-        Document soapXmlDocument = null;
-        if (!usePrefix1) {
-            // ########## Setting SOAP envelop tags prefix to "soapenv:" ##########
-            soapXmlDocument = buildSoapXmlDocument_0(bodyContent);
-        } else {
-            // ########## Setting SOAP envelop tags prefix to "soap-env:" ##########
-            // V3 e V4
-            soapXmlDocument = buildSoapXmlDocument_1(bodyContent);
-        }
+        Document soapXmlDocument = buildSoapXmlDocument_1(bodyContent); // *******************
 
         System.out.println("\n############# BASIC SOAP ENVELOP - with no Header (soapXmlDocument Str): ###############");
         System.out.println(nodeToString(soapXmlDocument));
@@ -1226,15 +1217,7 @@ public class RedebanService {
 
 
         // ***************************************************************
-        // TODO: encrypt bodyContent here // encrypt only bodyContent or consider from <soap-env:Body> tag ??????????????????????
-        // 1)
-        // 1.1) - generate Ephemeral Key;
-        // Wss4jUtils.generateEphemeralKey();
-        // final var ephemeralKey = Wss4jUtils.generateAes256Key();
-
-        // final var secHeaderStr = "<wsse:Security soap-env:mustUnderstand=\"1\"></wsse:Security>";
-
-        String finalSOAPStr = Wss4jUtils.runWss4jEncryptionAndSignature_V9_V10(
+        String finalSOAPStr = Wss4jUtils.runWss4jEncryptionAndSignature_BR(
                 KEYSTORE_PATH,
                 SERVER_KEYSTORE_ALIAS,
                 CLIENT_KEYSTORE_ALIAS,
@@ -1245,8 +1228,8 @@ public class RedebanService {
 
 
         // System.out.println("\n############# FINAL SOAP ENVELOP to send to Redeban: ###############");
-        System.out.println(finalSOAPStr);
-        System.out.println("############################");
+        /*System.out.println(finalSOAPStr);
+        System.out.println("############################");*/
 
         // final var sc = initMutualTlsHandshake();
         initMutualTlsHandshake();
