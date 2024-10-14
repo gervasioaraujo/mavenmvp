@@ -1,17 +1,7 @@
 package com.liquido.mvp.utils;
 
-import org.apache.commons.codec.binary.Base64;
-
-import javax.crypto.Cipher;
 // import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.Mac;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.security.*;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
+
 
 public class RedebanUtils {
 
@@ -28,8 +18,8 @@ public class RedebanUtils {
             "sjOhr/CE69xEq5+ni3xVG4rzDeB1MIkLJ6loydJvhGzrlMSIJOBUgLIo66qAYVSV\n" +
             "p/Bp7IozD4nrajsj+jCj8pkCAwEAAQ==";
 
-    public static final String USERNAME = "TestLiquido";
-    public static final String PASSWORD = "Liquido.2023";
+    public static final String WSSEC_AUTH_USERNAME = "TestLiquido";
+    public static final String WSSEC_AUTH_PASSWORD = "Liquido.2023";
 
     public static final String LQD_PUBLIC_KEY_CONTENT = "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUQyVENDQXNFQ0ZDV2hFZjQ5YlNtbHB2dUJvemNqTDdIZ0pUUUNNQTBHQ1NxR1NJYjNEUUVCRFFVQU1JR28KTVFzd0NRWURWUVFHRXdKVlV6RVRNQkVHQTFVRUNBd0tRMkZzYVdadmNtNXBZVEVXTUJRR0ExVUVCd3dOVFc5MQpiblJoYVc0Z1ZtbGxkekVRTUE0R0ExVUVDZ3dIVEdseGRXbGtiekVVTUJJR0ExVUVDd3dMUlc1bmFXNWxaWEpwCmJtY3hJREFlQmdOVkJBTU1GMHhwY1hWcFpHOHRjR0Y1YldWdWRDMTBaWE4wYVc1bk1TSXdJQVlKS29aSWh2Y04KQVFrQkZoTnpkWEJ3YjNKMFFHeHBjWFZwWkc4dVkyOXRNQjRYRFRJME1EUXlOREE0TlRBeU4xb1hEVEkxTURReQpOREE0TlRBeU4xb3dnYWd4Q3pBSkJnTlZCQVlUQWxWVE1STXdFUVlEVlFRSURBcERZV3hwWm05eWJtbGhNUll3CkZBWURWUVFIREExTmIzVnVkR0ZwYmlCV2FXVjNNUkF3RGdZRFZRUUtEQWRNYVhGMWFXUnZNUlF3RWdZRFZRUUwKREF0RmJtZHBibVZsY21sdVp6RWdNQjRHQTFVRUF3d1hUR2x4ZFdsa2J5MXdZWGx0Wlc1MExYUmxjM1JwYm1jeApJakFnQmdrcWhraUc5dzBCQ1FFV0UzTjFjSEJ2Y25SQWJHbHhkV2xrYnk1amIyMHdnZ0VpTUEwR0NTcUdTSWIzCkRRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRGcrMGlpSFV3Q0p2VzFxVFplRXhMeHAvcTNYTFl4VkUvYmtqZUkKZ1c3ekp5eWFOL3k0bzlKajBycG5xUnVRclpWejdHRngwejN5L2VvNmhNWjhnaDI3clY5Y0ErZUpiaXhmOFI1Vgp5dTZLNFVpSXhjSFVyWVNQSy94dW1MeXRnaXY0TW84ZnhMV0liR3J6QUVPUFVBWndIaDdFdStkek5zV1gvQWJwCmJOTFd6QTV0MmRpYUlhUEQ4N1RVRW5GcDZBSDFsK1h5NFBseWpwbzB0cC9KMUlndmYybkZrS2VLM0RYTjJFWXEKS25ZWndBOUNBNGRPLzArNCtZbERmYmtLSnhrWUl0OW5sYjRCb3huR25SbEx6UFBHQVM4Y1dwaHJkVWJQcHd0ZQplZkNXZmFlbTc0U2tVeG5LQW13OWJ6Rk04K3BSTDh2T1BiTzhDMFZrcFhid3lINWpBZ01CQUFFd0RRWUpLb1pJCmh2Y05BUUVOQlFBRGdnRUJBSk1hMTFoV3BvTjN2dlFiQWpCY0cyM2ZKRzZPRFhlUHJIRGNPQnhsNlJtdXRYc0UKWW1mZWlHQ2lqd2pJbm1nWGt1aVpXU3BydmErelBjUkxienFHSTErWWRHZWMwSTNKbGpUZFFYRXkvbnU2NmVtWAp4QjQ2YVVlcWd1UEFjTUg3U2k1cVpKbWxqU0x0aFlNU2hSOUJVZVNxKzRJLzlOWWpBeEdCMmlUVXI5VURDZHNXClA3R1BYU2xNUi9aYjBhS0hBbjV0dmhvVG1nNVF5Z0NsK2ZHY080RXRlNitiSEJoZU9oZ0N4R2kxZU9FQkFZbkMKVFI0OXF6T2VHdjlkY01PL0cxa3ExMGE1OW5sd255TVNiMjQyZEo4YTVnTXFReG81M05PT1lTWjFROE9Ddm4rLwppMGdsSXo4VzZLbkhSMHRwYURWYlQrazZaY0FGaTNuRWdhRGJXWDA9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K";
     public static final String LQD_PRIVATE_KEY_CONTENT = "MIIEpQIBAAKCAQEA4PtIoh1MAib1tak2XhMS8af6t1y2MVRP25I3iIFu8ycsmjf8\n" +
@@ -134,8 +124,8 @@ public class RedebanUtils {
         return String.format("<soap-env:Envelope xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:soap-env=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap-env:Header><wsse:Security soap-env:mustUnderstand=\"1\"><xenc:EncryptedKey xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\"><xenc:EncryptionMethod xmlns:dsig=\"http://www.w3.org/2000/09/xmldsig#\" Algorithm=\"http://www.w3.org/2001/04/xmlenc#rsa-1_5\"/><dsig:KeyInfo xmlns:dsig=\"http://www.w3.org/2000/09/xmldsig#\"><wsse:SecurityTokenReference><wsse:KeyIdentifier ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier\" EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\">%s</wsse:KeyIdentifier></wsse:SecurityTokenReference></dsig:KeyInfo><xenc:CipherData xmlns:dsig=\"http://www.w3.org/2000/09/xmldsig#\"><xenc:CipherValue>%s</xenc:CipherValue></xenc:CipherData><xenc:ReferenceList><xenc:DataReference URI=\"#body\"/></xenc:ReferenceList></xenc:EncryptedKey><wsse:UsernameToken><wsse:Username>%s</wsse:Username><wsse:Password>%s</wsse:Password></wsse:UsernameToken></wsse:Security></soap-env:Header><soap-env:Body xmlns:ns14=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" ns14:Id=\"id-4f5036d7-4c08-45ab-a484-7ce5411d097e\"><xenc:EncryptedData xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" Id=\"body\" Type=\"http://www.w3.org/2001/04/xmlenc#Content\"><xenc:EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#aes256-cbc\"/><xenc:CipherData><xenc:CipherValue>%s</xenc:CipherValue></xenc:CipherData></xenc:EncryptedData></soap-env:Body></soap-env:Envelope>",
                 ski,
                 cipherEphemeralKeyValue,
-                USERNAME,
-                PASSWORD,
+                WSSEC_AUTH_USERNAME,
+                WSSEC_AUTH_PASSWORD,
                 cipherBodyValue);
     }
 
@@ -145,10 +135,10 @@ public class RedebanUtils {
                 CLEAN_CONTENT_TAG_BODY_1);
     }
 
-    /*// China team
+    // China team
     public static String getBasicSOAPEnvelopChinaTeam() {
-        return "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\"><Body xmlns:wstxns1=\"http://schemas.xmlsoap.org/soap/envelope/\" wstxns1:type=\"purchase\"><wstxns2:compraProcesarSolicitud xmlns:wstxns2=\"http://www.rbm.com.co/esb/comercio/compra/\"><wstxns2:cabeceraSolicitud><wstxns2:infoPuntoInteraccion><wstxns3:tipoTerminal xmlns:wstxns3=\"http://www.rbm.com.co/esb/comercio/\">WEB</wstxns3:tipoTerminal><wstxns4:idTerminal xmlns:wstxns4=\"http://www.rbm.com.co/esb/comercio/\">SRB00085</wstxns4:idTerminal><wstxns5:idAdquiriente xmlns:wstxns5=\"http://www.rbm.com.co/esb/comercio/\">10203040</wstxns5:idAdquiriente><wstxns6:idTransaccionTerminal xmlns:wstxns6=\"http://www.rbm.com.co/esb/comercio/\">100001</wstxns6:idTransaccionTerminal><wstxns7:modoCapturaPAN xmlns:wstxns7=\"http://www.rbm.com.co/esb/comercio/\">Manual</wstxns7:modoCapturaPAN><wstxns8:capacidadPIN xmlns:wstxns8=\"http://www.rbm.com.co/esb/comercio/\">Virtual</wstxns8:capacidadPIN></wstxns2:infoPuntoInteraccion></wstxns2:cabeceraSolicitud><wstxns2:idPersona><wstxns9:tipoDocumento xmlns:wstxns9=\"http://www.rbm.com.co/esb/comercio/\">CC</wstxns9:tipoDocumento><wstxns10:numDocumento xmlns:wstxns10=\"http://www.rbm.com.co/esb/comercio/\">1081408954</wstxns10:numDocumento></wstxns2:idPersona><wstxns2:infoMedioPago><wstxns2:idTarjetaCredito><wstxns11:franquicia xmlns:wstxns11=\"http://www.rbm.com.co/esb/\">VISA</wstxns11:franquicia><wstxns12:numTarjeta xmlns:wstxns12=\"http://www.rbm.com.co/esb/\">4005990000001247</wstxns12:numTarjeta><wstxns13:fechaExpiracion xmlns:wstxns13=\"http://www.rbm.com.co/esb/\">2025-12-31</wstxns13:fechaExpiracion><wstxns14:codVerificacion xmlns:wstxns14=\"http://www.rbm.com.co/esb/\">124</wstxns14:codVerificacion></wstxns2:idTarjetaCredito></wstxns2:infoMedioPago><wstxns2:infoCompra><wstxns2:montoTotal>10000.00</wstxns2:montoTotal><wstxns2:infoImpuestos><wstxns15:tipoImpuesto xmlns:wstxns15=\"http://www.rbm.com.co/esb/comercio/\">IVA</wstxns15:tipoImpuesto><wstxns16:monto xmlns:wstxns16=\"http://www.rbm.com.co/esb/comercio/\">0.00</wstxns16:monto></wstxns2:infoImpuestos><wstxns2:cantidadCuotas>1</wstxns2:cantidadCuotas><wstxns2:referencia>2b055320e4b542d2b990891bf</wstxns2:referencia></wstxns2:infoCompra></wstxns2:compraProcesarSolicitud></Body></Envelope>";
-    }*/
+        return "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\"><Body xmlns:wstxns1=\"http://schemas.xmlsoap.org/soap/envelope/\" wstxns1:type=\"purchase\"><wstxns2:compraProcesarSolicitud xmlns:wstxns2=\"http://www.rbm.com.co/esb/comercio/compra/\"><wstxns2:cabeceraSolicitud><wstxns2:infoPuntoInteraccion><wstxns3:tipoTerminal xmlns:wstxns3=\"http://www.rbm.com.co/esb/comercio/\">WEB</wstxns3:tipoTerminal><wstxns4:idTerminal xmlns:wstxns4=\"http://www.rbm.com.co/esb/comercio/\">SRB00085</wstxns4:idTerminal><wstxns5:idAdquiriente xmlns:wstxns5=\"http://www.rbm.com.co/esb/comercio/\">10203040</wstxns5:idAdquiriente><wstxns6:idTransaccionTerminal xmlns:wstxns6=\"http://www.rbm.com.co/esb/comercio/\">100001</wstxns6:idTransaccionTerminal><wstxns7:modoCapturaPAN xmlns:wstxns7=\"http://www.rbm.com.co/esb/comercio/\">Manual</wstxns7:modoCapturaPAN><wstxns8:capacidadPIN xmlns:wstxns8=\"http://www.rbm.com.co/esb/comercio/\">Virtual</wstxns8:capacidadPIN></wstxns2:infoPuntoInteraccion></wstxns2:cabeceraSolicitud><wstxns2:idPersona><wstxns9:tipoDocumento xmlns:wstxns9=\"http://www.rbm.com.co/esb/comercio/\">CC</wstxns9:tipoDocumento><wstxns10:numDocumento xmlns:wstxns10=\"http://www.rbm.com.co/esb/comercio/\">1081408954</wstxns10:numDocumento></wstxns2:idPersona><wstxns2:infoMedioPago><wstxns2:idTarjetaCredito><wstxns11:franquicia xmlns:wstxns11=\"http://www.rbm.com.co/esb/\">VISA</wstxns11:franquicia><wstxns12:numTarjeta xmlns:wstxns12=\"http://www.rbm.com.co/esb/\">4005990000001247</wstxns12:numTarjeta><wstxns13:fechaExpiracion xmlns:wstxns13=\"http://www.rbm.com.co/esb/\">2025-12-31</wstxns13:fechaExpiracion><wstxns14:codVerificacion xmlns:wstxns14=\"http://www.rbm.com.co/esb/\">124</wstxns14:codVerificacion></wstxns2:idTarjetaCredito></wstxns2:infoMedioPago><wstxns2:infoCompra><wstxns2:montoTotal>10000</wstxns2:montoTotal><wstxns2:infoImpuestos><wstxns15:tipoImpuesto xmlns:wstxns15=\"http://www.rbm.com.co/esb/comercio/\">IVA</wstxns15:tipoImpuesto><wstxns16:monto xmlns:wstxns16=\"http://www.rbm.com.co/esb/comercio/\">0.00</wstxns16:monto></wstxns2:infoImpuestos><wstxns2:cantidadCuotas>1</wstxns2:cantidadCuotas><wstxns2:referencia>2b055320e4b542d2b990891bf</wstxns2:referencia></wstxns2:infoCompra></wstxns2:compraProcesarSolicitud></Body></Envelope>";
+    }
 
     // ******** With "soapenv:" prefix
     // Used by route V5
@@ -172,8 +162,8 @@ public class RedebanUtils {
         return String.format("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:com=\"http://www.rbm.com.co/esb/comercio/compra/\" xmlns:com1=\"http://www.rbm.com.co/esb/comercio/\" xmlns:esb=\"http://www.rbm.com.co/esb/\"><soapenv:Header><wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" soapenv:mustUnderstand=\"1\"><xenc:EncryptedKey xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" Id=\"EK-52c73e2b-e722-434b-bd23-d0a99191e99f\"><xenc:EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#rsa-1_5\"/><ds:KeyInfo xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"><wsse:SecurityTokenReference><wsse:KeyIdentifier EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier\">%s</wsse:KeyIdentifier></wsse:SecurityTokenReference></ds:KeyInfo><xenc:CipherData><xenc:CipherValue>%s</xenc:CipherValue></xenc:CipherData><xenc:ReferenceList><xenc:DataReference URI=\"#ED-d99068fc-bf0e-41f1-b79b-3503e3dd72fd\"/></xenc:ReferenceList></xenc:EncryptedKey><wsse:UsernameToken wsu:Id=\"UsernameToken-7bb5307f-92d9-4cbb-8288-4351a7bacaaa\"><wsse:Username>%s</wsse:Username><wsse:Password Type=\"PasswordText\">%s</wsse:Password></wsse:UsernameToken></wsse:Security></soapenv:Header><soapenv:Body><xenc:EncryptedData xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" Id=\"ED-d99068fc-bf0e-41f1-b79b-3503e3dd72fd\" Type=\"http://www.w3.org/2001/04/xmlenc#Content\"><xenc:EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#aes256-cbc\"/><xenc:CipherData><xenc:CipherValue>%s</xenc:CipherValue></xenc:CipherData></xenc:EncryptedData></soapenv:Body></soapenv:Envelope>",
                 ski,
                 cipherEphemeralKeyValue,
-                USERNAME,
-                PASSWORD,
+                WSSEC_AUTH_USERNAME,
+                WSSEC_AUTH_PASSWORD,
                 cipherBodyValue);
     }
 

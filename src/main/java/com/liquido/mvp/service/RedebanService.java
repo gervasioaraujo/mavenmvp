@@ -40,20 +40,18 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
 
 public class RedebanService {
 
     /**
      * Path to the client keystore
      */
-    private final String CLIENT_KEYSTORE_PATH = "keystore.jks";
+    private final String KEYSTORE_PATH = "keystore.jks";
     /**
      * Password for the client keystore
      */
-    private final String CLIENT_KEYSTORE_PASSWORD = "liquido123";
+    private final String KEYSTORE_PASSWORD = "liquido123";
     /**
      * The client's alias within the client keystore.
      */
@@ -61,7 +59,7 @@ public class RedebanService {
     /**
      * The server certificate's alias within the client keystore.
      */
-    private final String SERVER_CERTIFICATE_ALIAS = "server";
+    private final String SERVER_KEYSTORE_ALIAS = "server";
 
     private final String SERVER_SECURE_PORT = "9990";
 
@@ -86,7 +84,7 @@ public class RedebanService {
         /*
          * Load the keystore
          */
-        char[] password = CLIENT_KEYSTORE_PASSWORD.toCharArray();
+        char[] password = KEYSTORE_PASSWORD.toCharArray();
         KeyStore keystore = loadKeystore(password);
 
         // ####################################################################
@@ -148,7 +146,7 @@ public class RedebanService {
          * Get the servers trusted certificate.
          */
         final Certificate trusted = keystore
-                .getCertificate(SERVER_CERTIFICATE_ALIAS);
+                .getCertificate(SERVER_KEYSTORE_ALIAS);
 
         /*
          * Create a trust manager that validates the servers certificate
@@ -242,7 +240,7 @@ public class RedebanService {
             throws NoSuchAlgorithmException, CertificateException, IOException,
             KeyStoreException {
 
-        FileInputStream is = new FileInputStream(new File(CLIENT_KEYSTORE_PATH));
+        FileInputStream is = new FileInputStream(new File(KEYSTORE_PATH));
 
         final KeyStore keystore = KeyStore.getInstance(KeyStore
                 .getDefaultType());
@@ -256,13 +254,13 @@ public class RedebanService {
         /*
          * Load the keystore
          */
-        char[] password = CLIENT_KEYSTORE_PASSWORD.toCharArray();
+        char[] password = KEYSTORE_PASSWORD.toCharArray();
         KeyStore keystore = loadKeystore(password);
         /*
          * Get the servers trusted certificate.
          */
         final Certificate serverCert = keystore
-                .getCertificate(SERVER_CERTIFICATE_ALIAS);
+                .getCertificate(SERVER_KEYSTORE_ALIAS);
 
         return serverCert.getPublicKey();
     }
@@ -1037,6 +1035,29 @@ public class RedebanService {
         return doc;*/
     }
 
+    private Document buildSoapXmlDocument_CN(
+            final String bodyContent
+    ) throws Exception {
+        // New soap xml
+        MessageFactory messageFactory = MessageFactory.newInstance();
+        SOAPMessage soapMessage = messageFactory.createMessage();
+
+        // Soap create
+        SOAPEnvelope envelope = soapMessage.getSOAPPart().getEnvelope();
+        envelope.removeNamespaceDeclaration(envelope.getPrefix());
+        envelope.setPrefix("soap-env");
+        envelope.addNamespaceDeclaration("soap-env", "http://schemas.xmlsoap.org/soap/envelope/");
+
+        SOAPBody soapBody = envelope.getBody();
+        soapBody.setPrefix("soap-env");
+        SOAPHeader soapHeader = envelope.getHeader();
+        soapHeader.setPrefix("soap-env");
+        soapBody.addDocument(convertStringToDocument(bodyContent));
+
+        soapMessage.saveChanges();
+        return soapMessageToDocument(soapMessage);
+    }
+
     private Document convertStringToDocument(final String xmlStr) {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -1053,7 +1074,7 @@ public class RedebanService {
         return soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
     }
 
-    // WSS4J - 2.4.3 version
+    // WSS4J - 2.4.3 version - China Team
     public String executeWss4jSOAPAndHttpsRequest(
             final boolean encryptAndSign,
             final boolean usePrefix1
@@ -1089,9 +1110,9 @@ public class RedebanService {
 
         // Load the Crypto properties
         final var crypto = Wss4jUtils.loadCrypto(
-                CLIENT_KEYSTORE_PASSWORD,
+                KEYSTORE_PASSWORD,
                 CLIENT_KEYSTORE_ALIAS,
-                CLIENT_KEYSTORE_PATH);
+                KEYSTORE_PATH);
 
         // ***************************************************************
         // TODO: encrypt bodyContent here // encrypt only bodyContent or consider from <soap-env:Body> tag ??????????????????????
@@ -1104,11 +1125,121 @@ public class RedebanService {
 
         String finalSOAPStr = Wss4jUtils.runWss4jEncryptionAndSignature(
                 crypto,
+                SERVER_KEYSTORE_ALIAS,
                 CLIENT_KEYSTORE_ALIAS,
-                CLIENT_KEYSTORE_PASSWORD,
+                KEYSTORE_PASSWORD,
                 soapXmlDocument,
-                RedebanUtils.USERNAME,
-                RedebanUtils.PASSWORD,
+                RedebanUtils.WSSEC_AUTH_USERNAME,
+                RedebanUtils.WSSEC_AUTH_PASSWORD,
+                encryptAndSign
+        );
+
+
+        // System.out.println("\n############# FINAL SOAP ENVELOP to send to Redeban: ###############");
+        System.out.println(finalSOAPStr);
+        System.out.println("############################");
+
+        // final var sc = initMutualTlsHandshake();
+        initMutualTlsHandshake();
+
+        /*HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // create an all-trusting host name verifier
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        };
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);*/
+
+        return sendSOAPRequest(finalSOAPStr, SERVER_SECURE_PORT);
+    }
+
+    public String executeWss4jSOAPAndHttpsRequest_CN(
+            final boolean encryptAndSign
+    ) throws Exception {
+        // ########## Getting basic CLEAN SOAP Envelop with only Body tag ##########
+        final var basicCleanSOAPEnvelop = RedebanUtils.getBasicSOAPEnvelopChinaTeam();
+        System.out.println("\n############# INITIAL basicCleanSOAPEnvelop: ###############");
+        System.out.println(basicCleanSOAPEnvelop);
+        System.out.println("############################");
+
+        // ########## Extracting CLEAN Body tag (***** only content body) ##########
+        final var bodyContent = extractBodyContent(basicCleanSOAPEnvelop);
+        // final var bodyContent = RedebanUtils.getBasicCleanSOAPEnvelop();
+        // final var bodyContent = RedebanUtils.getCleanBodyContent();
+        System.out.println("\n############# INITIAL Extracted bodyContent: ###############");
+        System.out.println(bodyContent);
+        System.out.println("############################");
+
+        Document soapXmlDocument = buildSoapXmlDocument_CN(bodyContent);
+        System.out.println("\n############# BASIC SOAP ENVELOP - with no Header (soapXmlDocument Str): ###############");
+        System.out.println(nodeToString(soapXmlDocument));
+        System.out.println("############################");
+
+        String finalSOAPStr = Wss4jUtils.runWss4jEncryptionAndSignature_CN(
+                KEYSTORE_PATH,
+                SERVER_KEYSTORE_ALIAS,
+                CLIENT_KEYSTORE_ALIAS,
+                KEYSTORE_PASSWORD,
+                soapXmlDocument,
+                encryptAndSign
+        );
+
+        initMutualTlsHandshake();
+
+        return sendSOAPRequest(finalSOAPStr, SERVER_SECURE_PORT);
+    }
+
+    // WSS4J - 2.4.3 version - BR Team
+    public String executeWss4jSOAPAndHttpsRequest_V9_V10(
+            final boolean encryptAndSign,
+            final boolean usePrefix1
+    ) throws Exception {
+
+        // 0) mounting basic SOAP envelop
+
+        // ########## Getting basic CLEAN SOAP Envelop with only Body tag ##########
+        final var basicCleanSOAPEnvelop = RedebanUtils.getBasicSOAPEnvelopBrazilTeam();
+
+        // ########## Extracting CLEAN Body tag (***** only content body) ##########
+        final var bodyContent = extractBodyContent(basicCleanSOAPEnvelop);
+        // final var bodyContent = RedebanUtils.getBasicCleanSOAPEnvelop();
+        // final var bodyContent = RedebanUtils.getCleanBodyContent();
+        System.out.println("\n############# INITIAL Extracted bodyContent: ###############");
+        System.out.println(bodyContent);
+        System.out.println("############################");
+
+        Document soapXmlDocument = null;
+        if (!usePrefix1) {
+            // ########## Setting SOAP envelop tags prefix to "soapenv:" ##########
+            soapXmlDocument = buildSoapXmlDocument_0(bodyContent);
+        } else {
+            // ########## Setting SOAP envelop tags prefix to "soap-env:" ##########
+            // V3 e V4
+            soapXmlDocument = buildSoapXmlDocument_1(bodyContent);
+        }
+
+        System.out.println("\n############# BASIC SOAP ENVELOP - with no Header (soapXmlDocument Str): ###############");
+        System.out.println(nodeToString(soapXmlDocument));
+        System.out.println("############################");
+
+
+        // ***************************************************************
+        // TODO: encrypt bodyContent here // encrypt only bodyContent or consider from <soap-env:Body> tag ??????????????????????
+        // 1)
+        // 1.1) - generate Ephemeral Key;
+        // Wss4jUtils.generateEphemeralKey();
+        // final var ephemeralKey = Wss4jUtils.generateAes256Key();
+
+        // final var secHeaderStr = "<wsse:Security soap-env:mustUnderstand=\"1\"></wsse:Security>";
+
+        String finalSOAPStr = Wss4jUtils.runWss4jEncryptionAndSignature_V9_V10(
+                KEYSTORE_PATH,
+                SERVER_KEYSTORE_ALIAS,
+                CLIENT_KEYSTORE_ALIAS,
+                KEYSTORE_PASSWORD,
+                soapXmlDocument,
                 encryptAndSign
         );
 
