@@ -241,9 +241,9 @@ public class RedebanController {
     public String redebanCN2() {
         /*
          * código da China
-         * somente crifrado
+         * Crifrado e Assinado
          * */
-        System.out.println("\n\n => Running CN1 route...");
+        System.out.println("\n\n => Running CN2 route...");
         try {
             return redebanService.executeWss4jSOAPAndHttpsRequest_CN(true);
         } catch (Exception e) {
