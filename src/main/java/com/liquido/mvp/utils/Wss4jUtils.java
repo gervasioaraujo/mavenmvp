@@ -669,7 +669,7 @@ public class Wss4jUtils {
         // return sign.build(clientCrypto);
 
         List<WSEncryptionPart> parts = new ArrayList<>();
-        // parts.add(new WSEncryptionPart("Timestamp", WSConstants.WSU_NS, ""));
+        parts.add(new WSEncryptionPart("Timestamp", WSConstants.WSU_NS, ""));
         parts.add(new WSEncryptionPart("Body", WSConstants.URI_SOAP11_ENV, ""));
 
         // parts.add(new WSEncryptionPart("Envelope", WSConstants.URI_SOAP11_ENV, ""));
