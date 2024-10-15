@@ -1246,4 +1246,39 @@ public class RedebanService {
 
         return sendSOAPRequest(finalSOAPStr, SERVER_SECURE_PORT);
     }
+
+    public String executeWss4jSOAPAndHttpsRequest_BR_3_4(
+            final boolean signAndEncrypt
+    ) throws Exception {
+
+        // ########## Getting basic CLEAN SOAP Envelop with only Body tag ##########
+        final var basicCleanSOAPEnvelop = RedebanUtils.getBasicSOAPEnvelopBrazilTeam(); // ****************
+
+        // ########## Extracting CLEAN Body tag (***** only content body) ##########
+        final var bodyContent = extractBodyContent(basicCleanSOAPEnvelop);
+        // final var bodyContent = RedebanUtils.getBasicCleanSOAPEnvelop();
+        // final var bodyContent = RedebanUtils.getCleanBodyContent();
+        System.out.println("\n############# INITIAL Extracted bodyContent: ###############");
+        System.out.println(bodyContent);
+        System.out.println("############################");
+
+        Document soapXmlDocument = buildSoapXmlDocument_1(bodyContent); // *******************
+
+        System.out.println("\n############# BASIC SOAP ENVELOP - with no Header (soapXmlDocument Str): ###############");
+        System.out.println(nodeToString(soapXmlDocument));
+        System.out.println("############################");
+
+        // ***************************************************************
+        String finalSOAPStr = Wss4jUtils.runWss4jSignatureAndEncryption_BR_3_4(
+                KEYSTORE_PATH,
+                SERVER_KEYSTORE_ALIAS,
+                CLIENT_KEYSTORE_ALIAS,
+                KEYSTORE_PASSWORD,
+                soapXmlDocument,
+                signAndEncrypt
+        );
+
+        initMutualTlsHandshake();
+        return sendSOAPRequest(finalSOAPStr, SERVER_SECURE_PORT);
+    }
 }

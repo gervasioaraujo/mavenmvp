@@ -292,4 +292,38 @@ public class RedebanController {
             throw new RuntimeException(e);
         }
     }
+
+    @GetMapping("/mvp/br3/redeban")
+    public String redebanBR3() {
+        /*
+         * - Usa a lib wss4j-2.4.3 (código criado pelo time BR);
+         * - Envia o xml somente assinado.
+         * // ******** With "soap-env:" prefix
+         * */
+        System.out.println("\n\n => Running BR3 route...");
+        try {
+            return redebanService.executeWss4jSOAPAndHttpsRequest_BR_3_4(false); // **********
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/mvp/br4/redeban")
+    public String redebanBR4() {
+        /*
+         * - Usa a lib wss4j-2.4.3 (código criado pelo time BR);
+         *
+         * - Usa uma chave efêmera gerada dinamicamente (o iv deve ser gerenciado pela própria lib wss4j);
+         *
+         *
+         * - Envia o xml assinado e cifrado (NESTA ORDEM).
+         * // ******** With "soap-env:" prefix
+         * */
+        System.out.println("\n\n => Running BR4 route...");
+        try {
+            return redebanService.executeWss4jSOAPAndHttpsRequest_BR_3_4(true); // **********
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
